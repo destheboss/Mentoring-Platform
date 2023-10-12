@@ -12,6 +12,8 @@ namespace BusinessLogicLayer.Interfaces
         string Name { get; }
         string Email { get; }
         string Password { get; }
+        string PasswordHash { get; set; }
+        string PasswordSalt { get; set; }
         Role Role { get; }
     }
 }

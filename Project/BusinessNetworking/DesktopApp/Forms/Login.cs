@@ -9,39 +9,37 @@ using System.Drawing;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using BusinessLogicLayer.Common;
 
 namespace DesktopApp.Forms
 {
     public partial class Login : Form
     {
-        private UserManager _userManager;
-        public Login()
-        {
-            InitializeComponent();
-            _userManager = new UserManager();
+        private UserManager userManager;
+        private SessionManager sessionManager;
 
-            // For now everything is hardcoded but will soon make use of a database.
-            Admin admin = new Admin("Admin", "admin@gmail.com", "123", Role.Admin);
-            Mentor mentor = new Mentor("John", "john@gmail.com", "123", Role.Mentor);
-            _userManager.AddPerson(admin);
-            _userManager.AddPerson(mentor);
+        public Login(UserManager userManager, SessionManager sessionManager)
+        {
+            this.userManager = userManager;
+            this.sessionManager = sessionManager;
+            InitializeComponent();
         }
 
         private void btnLogin_Click(object sender, EventArgs e)
         {
-            bool[] checkResults = _userManager.CheckCredentialsForAdmin(tbUsername.Text, tbPassword.Text);
+            bool[] checkResults = userManager.CheckCredentialsForAdmin(tbUsername.Text, tbPassword.Text);
 
-            if (!checkResults[0])
-            {
-                MessageBox.Show("Wrong email or password!");
-            }
-            else if (!checkResults[1])
+            if (checkResults[0] == false && checkResults[1] == true)
             {
                 MessageBox.Show("You are not authorized!");
             }
-            else
+            else if (checkResults[0] == true && checkResults[1] == true)
             {
                 MessageBox.Show("Successfully logged in.");
+            }
+            else
+            {
+                MessageBox.Show("Wrong email or password!");
             }
         }
     }
