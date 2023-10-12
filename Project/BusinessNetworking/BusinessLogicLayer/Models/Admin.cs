@@ -53,7 +53,18 @@ namespace BusinessLogicLayer.Models
         }
         public string PasswordHash { get => this.passwordHash; set => this.passwordHash = value; }
         public string PasswordSalt { get => this.passwordSalt; set => this.passwordSalt = value; }
-        public Role Role { get => this.role; private set => this.role = value; }
+        public Role Role
+        {
+            get => this.role;
+            private set
+            {
+                if (value == null)
+                {
+                    throw new InvalidOperationException("Role cannot be empty.");
+                }
+                this.role = value;
+            }
+        }
 
         // Creation of user
         public Admin(string name, string email, string password, Role role)

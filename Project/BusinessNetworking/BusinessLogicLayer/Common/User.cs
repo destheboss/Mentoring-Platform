@@ -57,7 +57,18 @@ namespace BusinessLogicLayer.Common
 
         public string PasswordHash { get => this.passwordHash; set => this.passwordHash = value; }
         public string PasswordSalt { get => this.passwordSalt; set => this.passwordSalt = value; }
-        public Role Role { get => this.role; private set => this.role = value; }
+        public Role Role
+        {
+            get => this.role;
+            private set
+            {
+                if (value == null)
+                {
+                    throw new InvalidOperationException("Role cannot be empty.");
+                }
+                this.role = value;
+            }
+        }
         public bool isActive { get => this._isActive; set => this._isActive = value; }
 
         // Creation of user
@@ -79,7 +90,7 @@ namespace BusinessLogicLayer.Common
             this.isActive = isActive;
         }
 
-        public string GetStatus(User user)
+        protected string GetStatus(User user)
         {
             if (user.isActive == true)
             {
