@@ -3,6 +3,13 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 
+// Register UserManager service.
+// Register IPersonDataAccess and its implementation.
+builder.Services.AddScoped<BusinessLogicLayer.Interfaces.IPersonDataAccess, DataAccessLayer.Managers.PersonDataManager>();
+builder.Services.AddScoped<BusinessLogicLayer.Managers.UserManager>();
+builder.Services.AddScoped<BusinessLogicLayer.Managers.HashingManager>();
+builder.Services.AddScoped<BusinessLogicLayer.Interfaces.ISessionDataAccess, DataAccessLayer.Managers.SessionDataManager>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -19,6 +26,12 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthorization();
+
+// Custom middleware to redirect to the Login page by default
+app.MapGet("/", async (HttpContext context) =>
+{
+    context.Response.Redirect("/Login");
+});
 
 app.MapRazorPages();
 

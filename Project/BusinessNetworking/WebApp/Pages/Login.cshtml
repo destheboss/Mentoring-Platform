@@ -1,0 +1,46 @@
+﻿@page
+@model WebApp.Pages.LoginModel
+@{
+    ViewData["Title"] = "Home page";
+
+    @if (ViewData["Message"] != null)
+    {
+        <div class="alert alert-success">
+            @ViewData["Message"]
+        </div>
+    }
+}
+
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" href="~/css/login.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Register</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="login-container">
+        <h2>Login</h2>
+        <form method="post">
+            <label asp-for="Email">Email</label>
+            <input asp-for="Email" placeholder="Email" required />
+            <span asp-validation-for="Email"></span>
+            
+            <label asp-for="Password"></label>
+            <input asp-for="Password" type="password" placeholder="Password" required />
+            <span asp-validation-for="Password"></span>
+
+            <button type="submit">Login</button>
+        </form>
+    </div>
+    
+    <footer>
+        <p>&copy; 2023 Business Networking. All rights reserved.</p>
+    </footer>
+</body>

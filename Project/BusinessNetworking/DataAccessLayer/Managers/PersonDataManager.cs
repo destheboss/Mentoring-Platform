@@ -331,7 +331,7 @@ namespace DataAccessLayer.Managers
                                 byte[] storedSalt = (byte[])reader["PasswordSalt"];
                                 bool isVerified = hashingManager.VerifyHash(password, storedHash, storedSalt);
                                 string role = reader["Role"].ToString();
-                                result = new bool[] { role != "Admin", isVerified };
+                                result = new bool[] { true, isVerified };
                             }
                         }
                     }
