@@ -10,7 +10,8 @@ namespace BusinessLogicLayer.Common
 {
     public abstract class User : IPerson
     {
-        private string name;
+        private string firstName;
+        private string lastName;
         private string email;
         private string password;
         private string passwordHash;
@@ -18,16 +19,28 @@ namespace BusinessLogicLayer.Common
         private Role role;
         private bool _isActive;
 
-        public string Name 
+        public string FirstName 
         { 
-            get => this.name;          
+            get => this.firstName;          
             private set
             {
                 if (string.IsNullOrEmpty(value))
                 {
                     throw new ArgumentException("Invalid name.");
                 }
-                this.name = value;
+                this.firstName = value;
+            }
+        }
+        public string LastName
+        {
+            get => this.lastName;
+            private set
+            {
+                if (string.IsNullOrEmpty(value))
+                {
+                    throw new ArgumentException("Invalid name.");
+                }
+                this.lastName = value;
             }
         }
         public string Email
@@ -72,9 +85,10 @@ namespace BusinessLogicLayer.Common
         public bool isActive { get => this._isActive; set => this._isActive = value; }
 
         // Creation of user
-        protected User(string name, string email, string password, Role role)
+        protected User(string firstName, string lastName, string email, string password, Role role)
         {
-            this.Name = name;
+            this.FirstName = firstName;
+            this.LastName = lastName;
             this.Email = email;
             this.Password = password;
             this.Role = role;
@@ -82,23 +96,20 @@ namespace BusinessLogicLayer.Common
         }
 
         // Pulling only necessary data for the user (excluding password for security reasons)
-        protected User(string name, string email, Role role, bool isActive)
+        protected User(string firstName, string lastName, string email, Role role, bool isActive)
         {
-            this.Name = name;
+            this.FirstName = firstName;
+            this.LastName = lastName;
             this.Email = email;
             this.Role = role;
             this.isActive = isActive;
         }
 
-        protected string GetStatus(User user)
+        protected string GetStatus()
         {
-            if (user.isActive == true)
-            {
-                return "Active";
-            }
-            return "Suspended";
+            return this.isActive ? "Active" : "Suspended";
         }
 
-        public override string ToString() => $"{this.GetStatus} {this.Role} - name: {this.Name}, email: {this.Email}";
+        public override string ToString() => $"{this.FirstName} {this.LastName} - ({GetStatus()}) {this.Role} - email: {this.Email}";
     }
 }

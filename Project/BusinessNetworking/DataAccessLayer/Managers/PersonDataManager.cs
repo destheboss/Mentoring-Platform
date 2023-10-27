@@ -13,12 +13,12 @@ namespace DataAccessLayer.Managers
 {
     public class PersonDataManager : ConnectionSQL, IPersonDataAccess
     {
-        private readonly ISessionDataAccess sessionDataAccess;
+        private readonly IMeetingDataAccess meetingDataAccess;
         private readonly HashingManager hashingManager;
 
-        public PersonDataManager(ISessionDataAccess sessionDataAccess, HashingManager hashingManager)
+        public PersonDataManager(IMeetingDataAccess meetingDataAccess, HashingManager hashingManager)
         {
-            this.sessionDataAccess = sessionDataAccess;
+            this.meetingDataAccess = meetingDataAccess;
             this.hashingManager = hashingManager;
         }
 
@@ -48,11 +48,12 @@ namespace DataAccessLayer.Managers
 
                 ExecuteNonQuery(connection =>
                 {
-                    string query = "INSERT INTO Person (Name, Email, PasswordHash, PasswordSalt, Role, Rating, IsActive) VALUES (@Name, @Email, @PasswordHash, @PasswordSalt, @Role, @Rating, @IsActive)";
+                    string query = "INSERT INTO Person (FirstName, LastName, Email, PasswordHash, PasswordSalt, Role, Rating, IsActive) VALUES (@FirstName, @LastName, @Email, @PasswordHash, @PasswordSalt, @Role, @Rating, @IsActive)";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
-                        command.Parameters.AddWithValue("@Name", person.Name);
+                        command.Parameters.AddWithValue("@FirstName", person.FirstName);
+                        command.Parameters.AddWithValue("@LastName", person.LastName);
                         command.Parameters.AddWithValue("@Email", person.Email);
                         command.Parameters.AddWithValue("@PasswordHash", hash);
                         command.Parameters.AddWithValue("@PasswordSalt", salt);
@@ -150,15 +151,15 @@ namespace DataAccessLayer.Managers
         {
             try
             {
-                IEnumerable<Session> mentorSessions = sessionDataAccess.GetAllSessions(mentor.Email);
+                IEnumerable<Meeting> mentorMeetings = meetingDataAccess.GetAllMeetings(mentor.Email);
 
                 double averageRating = 0;
                 int count = 0;
-                foreach (Session session in mentorSessions)
+                foreach (Meeting meeting in mentorMeetings)
                 {
-                    if (session.Rating > 0) // Assuming that 0 means 'unrated'
+                    if (meeting.Rating > 0) // Assuming that 0 means 'unrated'
                     {
-                        averageRating += session.Rating;
+                        averageRating += meeting.Rating;
                         count++;
                     }
                 }
@@ -194,7 +195,8 @@ namespace DataAccessLayer.Managers
         {
             try
             {
-                string name = reader["Name"].ToString();
+                string firstName = reader["FirstName"].ToString();
+                string lastName = reader["LastName"].ToString();
                 string email = reader["Email"].ToString();
                 bool? isActive = reader["IsActive"] as bool?;
                 float? rating = reader["Rating"] as float?;
@@ -202,14 +204,14 @@ namespace DataAccessLayer.Managers
                 switch (role)
                 {
                     case Role.Admin:
-                        return new Admin(name, email, role);
+                        return new Admin(firstName, lastName, email, role);
 
                     case Role.Mentor:
-                        Mentor mentor = new Mentor(name, email, role, isActive ?? false, rating ?? 0);
+                        Mentor mentor = new Mentor(firstName, lastName, email, role, isActive ?? false, rating ?? 0);
                         return mentor;
 
                     case Role.Mentee:
-                        Mentee mentee = new Mentee(name, email, role, isActive ?? false);
+                        Mentee mentee = new Mentee(firstName, lastName, email, role, isActive ?? false);
                         return mentee;
 
                     default:
@@ -311,9 +313,9 @@ namespace DataAccessLayer.Managers
             }
         }
 
-        public bool[] CheckCredentialsForUser(string email, string password)
+        public bool CheckCredentialsForUser(string email, string password)
         {
-            bool[] result = new bool[] { false, false }; // IsUser, CredentialsAreCorrect
+            bool isVerified = false;
             try
             {
                 ExecuteQuery(connection =>
@@ -329,14 +331,12 @@ namespace DataAccessLayer.Managers
                             {
                                 byte[] storedHash = (byte[])reader["PasswordHash"];
                                 byte[] storedSalt = (byte[])reader["PasswordSalt"];
-                                bool isVerified = hashingManager.VerifyHash(password, storedHash, storedSalt);
-                                string role = reader["Role"].ToString();
-                                result = new bool[] { true, isVerified };
+                                isVerified = hashingManager.VerifyHash(password, storedHash, storedSalt);
                             }
                         }
                     }
                 });
-                return result;
+                return isVerified;
             }
             catch (Exception ex)
             {

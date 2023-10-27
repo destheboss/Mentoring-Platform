@@ -16,17 +16,17 @@ namespace DesktopApp.Forms
         static void Main()
         {
             HashingManager hashingManager = new HashingManager();
-            ISessionDataAccess sessionData = new SessionDataManager();
-            IPersonDataAccess personData = new PersonDataManager(sessionData, hashingManager);
+            IMeetingDataAccess meetingData = new MeetingDataManager();
+            IPersonDataAccess personData = new PersonDataManager(meetingData, hashingManager);
             UserManager userManager = new UserManager(personData);
-            SessionManager sessionManager = new SessionManager(sessionData);
+            MeetingManager meetingManager = new MeetingManager(meetingData);
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             ApplicationConfiguration.Initialize();
-            Application.Run(new Login(userManager, sessionManager));
+            Application.Run(new Login(userManager, meetingManager));
         }
     }
 }

@@ -49,7 +49,7 @@
             loginPanel.Location = new Point(0, 0);
             loginPanel.Margin = new Padding(5, 6, 5, 6);
             loginPanel.Name = "loginPanel";
-            loginPanel.Size = new Size(1333, 865);
+            loginPanel.Size = new Size(1041, 573);
             loginPanel.TabIndex = 0;
             // 
             // btnLogin
@@ -58,7 +58,7 @@
             btnLogin.BackColor = Color.LightSkyBlue;
             btnLogin.FlatStyle = FlatStyle.Flat;
             btnLogin.ForeColor = Color.White;
-            btnLogin.Location = new Point(591, 367);
+            btnLogin.Location = new Point(445, 367);
             btnLogin.Margin = new Padding(5, 6, 5, 6);
             btnLogin.Name = "btnLogin";
             btnLogin.Size = new Size(200, 40);
@@ -70,7 +70,7 @@
             // tbPassword
             // 
             tbPassword.Anchor = AnchorStyles.Top;
-            tbPassword.Location = new Point(591, 324);
+            tbPassword.Location = new Point(445, 324);
             tbPassword.Margin = new Padding(5, 6, 5, 6);
             tbPassword.Name = "tbPassword";
             tbPassword.PasswordChar = '*';
@@ -81,7 +81,7 @@
             // tbUsername
             // 
             tbUsername.Anchor = AnchorStyles.Top;
-            tbUsername.Location = new Point(591, 281);
+            tbUsername.Location = new Point(445, 281);
             tbUsername.Margin = new Padding(5, 6, 5, 6);
             tbUsername.Name = "tbUsername";
             tbUsername.PlaceholderText = "Email";
@@ -91,7 +91,7 @@
             // pbxImage
             // 
             pbxImage.Anchor = AnchorStyles.Top;
-            pbxImage.Location = new Point(591, 77);
+            pbxImage.Location = new Point(445, 77);
             pbxImage.Margin = new Padding(5, 6, 5, 6);
             pbxImage.Name = "pbxImage";
             pbxImage.Size = new Size(200, 192);
@@ -104,7 +104,7 @@
             lblLogin.Anchor = AnchorStyles.Top;
             lblLogin.AutoSize = true;
             lblLogin.Font = new Font("Arial", 24F, FontStyle.Bold, GraphicsUnit.Point);
-            lblLogin.Location = new Point(549, 15);
+            lblLogin.Location = new Point(403, 15);
             lblLogin.Margin = new Padding(5, 0, 5, 0);
             lblLogin.Name = "lblLogin";
             lblLogin.Size = new Size(281, 56);
@@ -116,7 +116,7 @@
             AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.Gainsboro;
-            ClientSize = new Size(1333, 865);
+            ClientSize = new Size(1041, 573);
             Controls.Add(loginPanel);
             Margin = new Padding(5, 6, 5, 6);
             Name = "Login";

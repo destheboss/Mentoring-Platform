@@ -10,18 +10,20 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using BusinessLogicLayer.Common;
+using BusinessLogicLayer.Interfaces;
 
 namespace DesktopApp.Forms
 {
     public partial class Login : Form
     {
         private UserManager userManager;
-        private SessionManager sessionManager;
+        private MeetingManager meetingManager;
 
-        public Login(UserManager userManager, SessionManager sessionManager)
+        public Login(UserManager userManager, MeetingManager meetingManager)
         {
             this.userManager = userManager;
-            this.sessionManager = sessionManager;
+            this.meetingManager = meetingManager;
+
             InitializeComponent();
         }
 
@@ -36,6 +38,13 @@ namespace DesktopApp.Forms
             else if (checkResults[0] == true && checkResults[1] == true)
             {
                 MessageBox.Show("Successfully logged in.");
+
+                IPerson user = userManager.GetPersonByEmail(tbUsername.Text);
+
+                Main form = new Main(user, userManager, meetingManager);
+                this.Hide();
+                form.ShowDialog();
+                this.Close();
             }
             else
             {

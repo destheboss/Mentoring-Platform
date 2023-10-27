@@ -30,9 +30,8 @@ namespace WebApp.Pages
             }
 
             string message = string.Empty;
-            bool[] checkResults = userManager.CheckCredentialsForUser(Email, Password);
 
-            if (checkResults[0] == true && checkResults[1] == true)
+            if (userManager.CheckCredentialsForUser(Email, Password))
             {
                 //HttpContext.Session.SetString("email", person.Email);
 

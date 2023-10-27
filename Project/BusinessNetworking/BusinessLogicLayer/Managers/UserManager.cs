@@ -62,7 +62,7 @@ namespace BusinessLogicLayer.Managers
             return data.CheckCredentialsForAdmin(email, password);
         }
 
-        public bool[] CheckCredentialsForUser(string email, string password)
+        public bool CheckCredentialsForUser(string email, string password)
         {
             return data.CheckCredentialsForUser(email, password);
         }

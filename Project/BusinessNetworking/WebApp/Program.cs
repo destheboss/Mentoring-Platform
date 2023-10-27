@@ -8,7 +8,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddScoped<BusinessLogicLayer.Interfaces.IPersonDataAccess, DataAccessLayer.Managers.PersonDataManager>();
 builder.Services.AddScoped<BusinessLogicLayer.Managers.UserManager>();
 builder.Services.AddScoped<BusinessLogicLayer.Managers.HashingManager>();
-builder.Services.AddScoped<BusinessLogicLayer.Interfaces.ISessionDataAccess, DataAccessLayer.Managers.SessionDataManager>();
+builder.Services.AddScoped<BusinessLogicLayer.Interfaces.IMeetingDataAccess, DataAccessLayer.Managers.MeetingDataManager>();
 
 var app = builder.Build();
 

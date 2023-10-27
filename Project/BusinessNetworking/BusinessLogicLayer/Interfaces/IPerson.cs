@@ -1,7 +1,6 @@
 ﻿using BusinessLogicLayer.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,7 +8,8 @@ namespace BusinessLogicLayer.Interfaces
 {
     public interface IPerson
     {
-        string Name { get; }
+        string FirstName { get; }
+        string LastName { get; }
         string Email { get; }
         string Password { get; }
         string PasswordHash { get; set; }

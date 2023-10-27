@@ -9,22 +9,35 @@ namespace BusinessLogicLayer.Models
 {
     public class Admin : IPerson
     {
-        private string name;
+        private string firstName;
+        private string lastName;
         private string email;
         private string password;
         private string passwordHash;
         private string passwordSalt;
         private Role role;
-        public string Name
+        public string FirstName
         {
-            get => this.name;
+            get => this.firstName;
             private set
             {
                 if (string.IsNullOrEmpty(value))
                 {
                     throw new ArgumentException("Invalid name.");
                 }
-                this.name = value;
+                this.firstName = value;
+            }
+        }
+        public string LastName
+        {
+            get => this.lastName;
+            private set
+            {
+                if (string.IsNullOrEmpty(value))
+                {
+                    throw new ArgumentException("Invalid name.");
+                }
+                this.lastName = value;
             }
         }
         public string Email
@@ -67,22 +80,24 @@ namespace BusinessLogicLayer.Models
         }
 
         // Creation of user
-        public Admin(string name, string email, string password, Role role)
+        public Admin(string firstName, string lastName, string email, string password, Role role)
         {
-            this.Name = name;
+            this.FirstName = firstName;
+            this.LastName = lastName;
             this.Email = email;
             this.Password = password;
             this.Role = role;
         }
 
         // Pulling only necessary data for the user (excluding password for security reasons)
-        public Admin(string name, string email, Role role)
+        public Admin(string firstName, string lastName, string email, Role role)
         {
-            this.Name = name;
+            this.FirstName = firstName;
+            this.LastName = lastName;
             this.Email = email;
             this.Role = role;
         }
 
-        public override string ToString() => $"{this.Role} - name: {this.Name}, email: {this.Email}";
+        public override string ToString() => $"{this.FirstName} {this.LastName} - {this.Role} - email: {this.Email}";
     }
 }

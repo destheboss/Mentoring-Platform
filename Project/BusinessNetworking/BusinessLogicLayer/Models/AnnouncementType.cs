@@ -5,10 +5,10 @@ using System.Threading.Tasks;
 
 namespace BusinessLogicLayer.Models
 {
-    public enum Role
+    public enum AnnouncementType
     {
-        Admin,
-        Mentor,
-        Mentee
+        Maintenance,
+        Event,
+        General
     }
 }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace BusinessLogicLayer.Models
 {
-    public class Session
+    public class Meeting
     {
         private DateTime dateTime;
         private string mentorEmail;
@@ -17,7 +17,7 @@ namespace BusinessLogicLayer.Models
         public string MenteeEmail { get => this.menteeEmail; set => this.menteeEmail = value;}
         public int Rating { get => this.rating; set => this.rating = value;}
 
-        public Session(DateTime dateTime, string mentorEmail, string menteeEmail)
+        public Meeting(DateTime dateTime, string mentorEmail, string menteeEmail)
         {
             this.DateTime = dateTime;
             this.MentorEmail = mentorEmail;

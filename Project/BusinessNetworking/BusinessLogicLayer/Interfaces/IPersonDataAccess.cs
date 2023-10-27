@@ -18,7 +18,7 @@ namespace BusinessLogicLayer.Interfaces
         IEnumerable<Mentor> GetMentors();
         IEnumerable<Mentee> GetMentees();
         bool[] CheckCredentialsForAdmin(string email, string password);
-        bool[] CheckCredentialsForUser(string email, string password);
+        bool CheckCredentialsForUser(string email, string password);
         IPerson? GetPersonByEmail(string email);
     }
 }
