@@ -8,6 +8,7 @@ namespace BusinessLogicLayer.Interfaces
 {
     public interface IPerson
     {
+        int Id { get; }
         string FirstName { get; }
         string LastName { get; }
         string Email { get; }
@@ -15,5 +16,6 @@ namespace BusinessLogicLayer.Interfaces
         string PasswordHash { get; set; }
         string PasswordSalt { get; set; }
         Role Role { get; }
+        string Image { get; }
     }
 }

@@ -15,11 +15,13 @@ namespace DataAccessLayer.Managers
     {
         private readonly IMeetingDataAccess meetingDataAccess;
         private readonly HashingManager hashingManager;
+        private readonly PasswordStrengthChecker passwordStrengthChecker;
 
-        public PersonDataManager(IMeetingDataAccess meetingDataAccess, HashingManager hashingManager)
+        public PersonDataManager(IMeetingDataAccess meetingDataAccess, HashingManager hashingManager, PasswordStrengthChecker passwordStrengthChecker)
         {
             this.meetingDataAccess = meetingDataAccess;
             this.hashingManager = hashingManager;
+            this.passwordStrengthChecker = passwordStrengthChecker;
         }
 
         private void ExecuteQuery(Action<SqlConnection> action)
@@ -40,154 +42,134 @@ namespace DataAccessLayer.Managers
             }
         }
 
-        public void AddPerson(IPerson person)
+        public void AddPerson(User user)
         {
             try
             {
-                var (hash, salt) = hashingManager.GenerateHashWithSalt(person.Password);
-
-                ExecuteNonQuery(connection =>
+                if (!passwordStrengthChecker.IsPasswordStrong(user.Password))
                 {
-                    string query = "INSERT INTO Person (FirstName, LastName, Email, PasswordHash, PasswordSalt, Role, Rating, IsActive) VALUES (@FirstName, @LastName, @Email, @PasswordHash, @PasswordSalt, @Role, @Rating, @IsActive)";
+                    throw new ArgumentException("Password does not meet the strength requirements.");
+                }
 
-                    using (SqlCommand command = new SqlCommand(query, connection))
+                var (hash, salt) = hashingManager.GenerateHashWithSalt(user.Password);
+
+                string personQuery = @"
+            INSERT INTO Person (FirstName, LastName, Email, PasswordHash, PasswordSalt, Role, IsActive, Image) 
+            OUTPUT INSERTED.Id 
+            VALUES (@FirstName, @LastName, @Email, @PasswordHash, @PasswordSalt, @Role, @IsActive, @Image)";
+
+                int userId;
+
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand(personQuery, connection))
                     {
-                        command.Parameters.AddWithValue("@FirstName", person.FirstName);
-                        command.Parameters.AddWithValue("@LastName", person.LastName);
-                        command.Parameters.AddWithValue("@Email", person.Email);
+                        command.Parameters.AddWithValue("@FirstName", user.FirstName);
+                        command.Parameters.AddWithValue("@LastName", user.LastName);
+                        command.Parameters.AddWithValue("@Email", user.Email);
                         command.Parameters.AddWithValue("@PasswordHash", hash);
                         command.Parameters.AddWithValue("@PasswordSalt", salt);
-                        command.Parameters.AddWithValue("@Role", person.Role.ToString());
+                        command.Parameters.AddWithValue("@Role", user.Role.ToString());
+                        command.Parameters.AddWithValue("@IsActive", user.isActive);
+                        command.Parameters.AddWithValue("@Image", (object)user.Image ?? DBNull.Value);
 
-                        if (person is Mentor mentor)
-                        {
-                            command.Parameters.AddWithValue("@Rating", mentor.Rating);
-                            command.Parameters.AddWithValue("@IsActive", mentor.isActive);
-                        }
-                        else if (person is Mentee mentee)
-                        {
-                            command.Parameters.AddWithValue("@Rating", DBNull.Value);
-                            command.Parameters.AddWithValue("@IsActive", mentee.isActive);
-                        }
-                        else
-                        {
-                            command.Parameters.AddWithValue("@Rating", DBNull.Value);
-                            command.Parameters.AddWithValue("@IsActive", DBNull.Value);
-                        }
-
-                        command.ExecuteNonQuery();
+                        userId = (int)command.ExecuteScalar();
                     }
-                });
+
+                    if (user is Mentor mentor)
+                    {
+                        string mentorQuery = "INSERT INTO Mentor (PersonId, Rating) VALUES (@PersonId, @Rating)";
+                        using (SqlCommand command = new SqlCommand(mentorQuery, connection))
+                        {
+                            command.Parameters.AddWithValue("@PersonId", userId);
+                            command.Parameters.AddWithValue("@Rating", mentor.Rating);
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                    else if (user is Mentee)
+                    {
+                        string menteeQuery = "INSERT INTO Mentee (PersonId) VALUES (@PersonId)";
+                        using (SqlCommand command = new SqlCommand(menteeQuery, connection))
+                        {
+                            command.Parameters.AddWithValue("@PersonId", userId);
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                    else if (user is Admin)
+                    {
+                        string adminQuery = "INSERT INTO Admin (PersonId) VALUES (@PersonId)";
+                        using (SqlCommand command = new SqlCommand(adminQuery, connection))
+                        {
+                            command.Parameters.AddWithValue("@PersonId", userId);
+                            command.ExecuteNonQuery();
+                        }
+                    }
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception($"Database error occurred while adding the person: {ex.Message}", ex);
+                throw new Exception($"Database error occurred while adding the user: {ex.Message}", ex);
             }
         }
 
-        public void RemovePerson(IPerson person)
+        public void RemovePerson(User user)
         {
             try
             {
-                ExecuteNonQuery(connection =>
+                using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    string query = "DELETE FROM Person WHERE Email = @Email";
-                    using (SqlCommand command = new SqlCommand(query, connection))
+                    connection.Open();
+
+                    string roleSpecificQuery = "";
+                    switch (user.Role)
                     {
-                        command.Parameters.AddWithValue("@Email", person.Email);
+                        case Role.Mentor:
+                            roleSpecificQuery = "DELETE FROM Mentor WHERE PersonId IN (SELECT Id FROM Person WHERE Email = @Email)";
+                            break;
+                        case Role.Mentee:
+                            roleSpecificQuery = "DELETE FROM Mentee WHERE PersonId IN (SELECT Id FROM Person WHERE Email = @Email)";
+                            break;
+                        case Role.Admin:
+                            roleSpecificQuery = "DELETE FROM Admin WHERE PersonId IN (SELECT Id FROM Person WHERE Email = @Email)";
+                            break;
+                        default:
+                            throw new ArgumentException("Invalid role type.");
+                    }
+
+                    using (SqlCommand roleSpecificCommand = new SqlCommand(roleSpecificQuery, connection))
+                    {
+                        roleSpecificCommand.Parameters.AddWithValue("@Email", user.Email);
+                        roleSpecificCommand.ExecuteNonQuery();
+                    }
+
+                    string personQuery = "DELETE FROM Person WHERE Email = @Email";
+                    using (SqlCommand command = new SqlCommand(personQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@Email", user.Email);
                         int rowsAffected = command.ExecuteNonQuery();
 
                         if (rowsAffected == 0)
                         {
                             throw new InvalidOperationException("Person not found in the database.");
                         }
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Database error occurred while removing the person: {ex.Message}", ex);
-            }
-        }
-
-        private void UpdateUserActivityStatus(User user, bool isActive)
-        {
-            try
-            {
-                ExecuteNonQuery(connection =>
-                {
-                    string query = "UPDATE Person SET IsActive = @IsActive WHERE Email = @Email";
-                    using (SqlCommand command = new SqlCommand(query, connection))
-                    {
-                        command.Parameters.AddWithValue("@IsActive", isActive);
-                        command.Parameters.AddWithValue("@Email", user.Email);
-
-                        int rowsAffected = command.ExecuteNonQuery();
-
-                        if (rowsAffected == 0)
+                        else
                         {
-                            throw new InvalidOperationException("User not found in the database.");
+                            if (!string.IsNullOrWhiteSpace(user.Image))
+                            {
+                                string imagePath = Path.Combine("wwwroot", user.Image);
+                                if (File.Exists(imagePath))
+                                {
+                                    File.Delete(imagePath);
+                                }
+                            }
                         }
                     }
-                });
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception($"Database error occurred while updating the person's activity: {ex.Message}", ex);
-            }
-        }
-
-        public void SuspendUser(User user)
-        {
-            UpdateUserActivityStatus(user, false);
-        }
-
-        public void UnsuspendUser(User user)
-        {
-            UpdateUserActivityStatus(user, true);
-        }
-
-        public void UpdateRating(Mentor mentor)
-        {
-            try
-            {
-                IEnumerable<Meeting> mentorMeetings = meetingDataAccess.GetAllMeetings(mentor.Email);
-
-                double averageRating = 0;
-                int count = 0;
-                foreach (Meeting meeting in mentorMeetings)
-                {
-                    if (meeting.Rating > 0) // Assuming that 0 means 'unrated'
-                    {
-                        averageRating += meeting.Rating;
-                        count++;
-                    }
-                }
-
-                if (count > 0)
-                {
-                    averageRating = averageRating / count;
-                }
-
-                ExecuteNonQuery(connection =>
-                {
-                    string query = "UPDATE Mentor SET Rating = @NewRating WHERE Email = @Email";
-                    using (SqlCommand cmd = new SqlCommand(query, connection))
-                    {
-                        cmd.Parameters.AddWithValue("@NewRating", averageRating);
-                        cmd.Parameters.AddWithValue("@Email", mentor.Email);
-
-                        int rowsAffected = cmd.ExecuteNonQuery();
-                        if (rowsAffected == 0)
-                        {
-                            throw new InvalidOperationException("Mentor not found in the database.");
-                        }
-                    }
-                });
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Database error occurred while updating the person's rating: {ex.Message}", ex);
+                throw new Exception($"Database error occurred while removing the user: {ex.Message}", ex);
             }
         }
 
@@ -195,24 +177,26 @@ namespace DataAccessLayer.Managers
         {
             try
             {
+                int id = reader.GetInt32(reader.GetOrdinal("Id"));
                 string firstName = reader["FirstName"].ToString();
                 string lastName = reader["LastName"].ToString();
                 string email = reader["Email"].ToString();
-                bool? isActive = reader["IsActive"] as bool?;
-                float? rating = reader["Rating"] as float?;
+                string imagePath = reader.IsDBNull(reader.GetOrdinal("Image")) ? null : reader["Image"].ToString();
+                bool isActive = reader.GetBoolean(reader.GetOrdinal("IsActive"));
 
                 switch (role)
                 {
                     case Role.Admin:
-                        return new Admin(firstName, lastName, email, role);
+                        return new Admin(id, firstName, lastName, email, role, isActive, imagePath);
 
                     case Role.Mentor:
-                        Mentor mentor = new Mentor(firstName, lastName, email, role, isActive ?? false, rating ?? 0);
-                        return mentor;
+                        float rating = role == Role.Mentor && !reader.IsDBNull(reader.GetOrdinal("Rating"))
+                                       ? (float)reader.GetDouble(reader.GetOrdinal("Rating"))
+                                       : 0f;
+                        return new Mentor(id, firstName, lastName, email, role, isActive, rating, imagePath);
 
                     case Role.Mentee:
-                        Mentee mentee = new Mentee(firstName, lastName, email, role, isActive ?? false);
-                        return mentee;
+                        return new Mentee(id, firstName, lastName, email, role, isActive, imagePath);
 
                     default:
                         throw new ArgumentException("Invalid role type.");
@@ -231,7 +215,10 @@ namespace DataAccessLayer.Managers
             {
                 ExecuteQuery(connection =>
                 {
-                    string query = "SELECT * FROM Person WHERE Role = @Role";
+                    //string query = "SELECT * FROM Person WHERE Role = @Role";
+                    string query = role == Role.Mentor
+               ? "SELECT p.*, m.Rating FROM Person p LEFT JOIN Mentor m ON p.Id = m.PersonId WHERE p.Role = @Role"
+               : "SELECT * FROM Person WHERE Role = @Role";
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@Role", role.ToString());
@@ -250,7 +237,7 @@ namespace DataAccessLayer.Managers
             }
             catch (Exception ex)
             {
-                throw new Exception($"Database error occurred while extracting the person's data: {ex.Message}", ex);
+                throw new Exception($"Database error occurred while extracting the user's data: {ex.Message}", ex);
             }
         }
 
@@ -272,78 +259,6 @@ namespace DataAccessLayer.Managers
             return persons.Cast<Mentee>();
         }
 
-        public bool[] CheckCredentialsForAdmin(string email, string password)
-        {
-            bool[] result = new bool[] { false, false };
-            try
-            {
-                ExecuteQuery(connection =>
-                {
-                    string query = "SELECT PasswordHash, PasswordSalt, Role FROM Person WHERE Email = @Email";
-                    using (SqlCommand command = new SqlCommand(query, connection))
-                    {
-                        command.Parameters.AddWithValue("@Email", email);
-
-                        using (SqlDataReader reader = command.ExecuteReader())
-                        {
-                            if (reader.Read())
-                            {
-                                byte[] storedHash = (byte[])reader["PasswordHash"];
-                                byte[] storedSalt = (byte[])reader["PasswordSalt"];
-                                bool isVerified = hashingManager.VerifyHash(password, storedHash, storedSalt);
-                                string role = reader["Role"].ToString();
-
-                                if (role == "Admin")
-                                {
-                                    result = new bool[] { true, isVerified };
-                                }
-                                else
-                                {
-                                    result = new bool[] { false, isVerified };
-                                }
-                            }
-                        }
-                    }
-                });
-                return result;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"An error occurred while checking the person's credentials: {ex.Message}", ex);
-            }
-        }
-
-        public bool CheckCredentialsForUser(string email, string password)
-        {
-            bool isVerified = false;
-            try
-            {
-                ExecuteQuery(connection =>
-                {
-                    string query = "SELECT PasswordHash, PasswordSalt, Role FROM Person WHERE Email = @Email";
-                    using (SqlCommand command = new SqlCommand(query, connection))
-                    {
-                        command.Parameters.AddWithValue("@Email", email);
-
-                        using (SqlDataReader reader = command.ExecuteReader())
-                        {
-                            if (reader.Read())
-                            {
-                                byte[] storedHash = (byte[])reader["PasswordHash"];
-                                byte[] storedSalt = (byte[])reader["PasswordSalt"];
-                                isVerified = hashingManager.VerifyHash(password, storedHash, storedSalt);
-                            }
-                        }
-                    }
-                });
-                return isVerified;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"An error occurred while checking the person's credentials: {ex.Message}", ex);
-            }
-        }
-
         public IPerson? GetPersonByEmail(string email)
         {
             IPerson? resultPerson = null;
@@ -351,7 +266,12 @@ namespace DataAccessLayer.Managers
             {
                 ExecuteQuery(connection =>
                 {
-                    string query = "SELECT * FROM Person WHERE Email = @Email";
+                    string query = @"
+            SELECT p.Id, p.FirstName, p.LastName, p.Email, p.Role, p.IsActive, p.Image, m.Rating 
+            FROM Person p
+            LEFT JOIN Mentor m ON p.Id = m.PersonId
+            WHERE p.Email = @Email";
+
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@Email", email);
@@ -370,7 +290,145 @@ namespace DataAccessLayer.Managers
             }
             catch (Exception ex)
             {
-                throw new Exception($"Database error occurred while extracting the person's data: {ex.Message}", ex);
+                throw new Exception($"Database error occurred while extracting the user's data: {ex.Message}", ex);
+            }
+        }
+
+        public List<IPerson> GetAllPersons()
+        {
+            List<IPerson> persons = new List<IPerson>();
+
+            string sqlQuery = @"
+        SELECT p.Id, p.FirstName, p.LastName, p.Email, p.Role, p.IsActive, p.Image,
+               m.Rating AS MentorRating
+        FROM Person p
+        LEFT JOIN Mentor m ON p.Id = m.PersonId
+        LEFT JOIN Mentee me ON p.Id = me.PersonId
+        LEFT JOIN Admin a ON p.Id = a.PersonId";
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                SqlCommand cmd = new SqlCommand(sqlQuery, conn);
+                conn.Open();
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        int id = reader.GetInt32(reader.GetOrdinal("Id"));
+                        string firstName = reader.GetString(reader.GetOrdinal("FirstName"));
+                        string lastName = reader.GetString(reader.GetOrdinal("LastName"));
+                        string email = reader.GetString(reader.GetOrdinal("Email"));
+                        Role role = ConvertToRole(reader.GetString(reader.GetOrdinal("Role")));
+                        bool isActive = reader.GetBoolean(reader.GetOrdinal("IsActive"));
+                        string image = reader.IsDBNull(reader.GetOrdinal("Image")) ? null : reader.GetString(reader.GetOrdinal("Image"));
+
+                        switch (role)
+                        {
+                            case Role.Mentor:
+                                float rating = reader.IsDBNull(reader.GetOrdinal("MentorRating")) ? 0f : (float)reader.GetDouble(reader.GetOrdinal("MentorRating"));
+                                Mentor mentor = new Mentor(id, firstName, lastName, email, role, isActive, rating, image);
+                                persons.Add(mentor);
+                                break;
+                            case Role.Mentee:
+                                Mentee mentee = new Mentee(id, firstName, lastName, email, role, isActive, image);
+                                persons.Add(mentee);
+                                break;
+                            case Role.Admin:
+                                Admin admin = new Admin(id, firstName, lastName, email, role, isActive, image);
+                                persons.Add(admin);
+                                break;
+                        }
+                    }
+                }
+            }
+
+            return persons;
+        }
+
+        private Role ConvertToRole(string roleStr)
+        {
+            if (Enum.TryParse(roleStr, true, out Role role))
+            {
+                return role;
+            }
+            else
+            {
+                throw new ArgumentException($"Invalid role string: {roleStr}");
+            }
+        }
+
+        public bool UpdatePersonInfo(IPerson person, string newFirstName, string newLastName, string newEmail, string newPassword, Role newRole)
+        {
+            var (hash, salt) = hashingManager.GenerateHashWithSalt(newPassword);
+
+            try
+            {
+                string query = @"
+            UPDATE Person SET
+            FirstName = @newFirstName,
+            LastName = @newLastName,
+            Email = @newEmail,
+            PasswordHash = @newPasswordHash,
+            PasswordSalt = @newPasswordSalt,
+            Role = @newRole
+            WHERE Id = @Id";
+
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        command.Parameters.AddWithValue("@newFirstName", newFirstName);
+                        command.Parameters.AddWithValue("@newLastName", newLastName);
+                        command.Parameters.AddWithValue("@newEmail", newEmail);
+                        command.Parameters.AddWithValue("@newPasswordHash", hash);
+                        command.Parameters.AddWithValue("@newPasswordSalt", salt);
+                        command.Parameters.AddWithValue("@newRole", newRole.ToString());
+                        command.Parameters.AddWithValue("@Id", person.Id);
+
+                        int rowsAffected = command.ExecuteNonQuery();
+                        return rowsAffected > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Database error occurred while updating the user's info: {ex.Message}", ex);
+            }
+        }
+
+        public void UpdateMentorAverageRating(Mentor mentor)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+
+                    string updateQuery = @"
+                UPDATE Mentor 
+                SET Rating = @Rating 
+                WHERE PersonId = (SELECT Id FROM Person WHERE Email = @Email)";
+
+                    using (SqlCommand cmd = new SqlCommand(updateQuery, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@Rating", mentor.Rating);
+                        cmd.Parameters.AddWithValue("@Email", mentor.Email);
+
+                        int rowsAffected = cmd.ExecuteNonQuery();
+
+                        if (rowsAffected == 0)
+                        {
+                            throw new InvalidOperationException("Mentor not found or update failed.");
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Database error occurred while updating the mentor's rating: {ex.Message}", ex);
             }
         }
     }

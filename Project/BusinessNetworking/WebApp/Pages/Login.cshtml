@@ -19,8 +19,8 @@
     <header>
         <nav>
             <ul>
-                <li><a href="#">Home</a></li>
-                <li><a href="#">Register</a></li>
+                <li><a href="/Home">Home</a></li>
+                <li><a href="/Register">Register</a></li>
             </ul>
         </nav>
     </header>
@@ -28,11 +28,9 @@
     <div class="login-container">
         <h2>Login</h2>
         <form method="post">
-            <label asp-for="Email">Email</label>
             <input asp-for="Email" placeholder="Email" required />
             <span asp-validation-for="Email"></span>
             
-            <label asp-for="Password"></label>
             <input asp-for="Password" type="password" placeholder="Password" required />
             <span asp-validation-for="Password"></span>
 

@@ -1,13 +1,34 @@
+using BusinessLogicLayer.Managers;
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Login";
+        options.AccessDeniedPath = "/AccessDenied";
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+    });
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 
 // Register UserManager service.
 // Register IPersonDataAccess and its implementation.
+builder.Services.AddScoped<BusinessLogicLayer.Interfaces.IAuthenticationDataAccess, DataAccessLayer.Managers.AuthenticationDataManager>();
 builder.Services.AddScoped<BusinessLogicLayer.Interfaces.IPersonDataAccess, DataAccessLayer.Managers.PersonDataManager>();
-builder.Services.AddScoped<BusinessLogicLayer.Managers.UserManager>();
+builder.Services.AddScoped<BusinessLogicLayer.Managers.LoggingManager>();
 builder.Services.AddScoped<BusinessLogicLayer.Managers.HashingManager>();
+builder.Services.AddScoped<BusinessLogicLayer.Managers.UserManager>();
+builder.Services.AddScoped<BusinessLogicLayer.Managers.PasswordStrengthChecker>();
 builder.Services.AddScoped<BusinessLogicLayer.Interfaces.IMeetingDataAccess, DataAccessLayer.Managers.MeetingDataManager>();
 
 var app = builder.Build();
@@ -25,12 +46,14 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
-// Custom middleware to redirect to the Login page by default
+app.UseSession();
+
 app.MapGet("/", async (HttpContext context) =>
 {
-    context.Response.Redirect("/Login");
+    context.Response.Redirect("/Home");
 });
 
 app.MapRazorPages();

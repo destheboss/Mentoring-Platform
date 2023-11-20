@@ -1,0 +1,37 @@
+﻿@page
+@model WebApp.Pages.IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+<head>
+    <title>Home - Business Networking</title>
+    <link rel="stylesheet" href="~/css/home.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/Register">Register</a></li>
+                <li><a href="/Login">Login</a></li>
+                <li><a href="/Events">Events</a></li>
+                <li><a href="/BrowseMentors">Browse Mentors</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="featured-stories">
+            <h2>Featured Mentors</h2>
+            <!-- Placeholder for dynamic featured stories -->
+            <div id="featured-mentors-container">
+                <!-- Dynamic content goes here -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2023 Business Networking. All rights reserved.</p>
+        <p>About us - Contact us at these socials: [Social Links]</p>
+    </footer>
+</body>

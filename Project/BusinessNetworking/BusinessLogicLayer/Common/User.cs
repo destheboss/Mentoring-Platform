@@ -10,6 +10,7 @@ namespace BusinessLogicLayer.Common
 {
     public abstract class User : IPerson
     {
+        private int id;
         private string firstName;
         private string lastName;
         private string email;
@@ -18,7 +19,13 @@ namespace BusinessLogicLayer.Common
         private string passwordSalt;
         private Role role;
         private bool _isActive;
+        private string image;
 
+        public int Id
+        {
+            get => this.id;
+            private set => this.id = value;
+        }
         public string FirstName 
         { 
             get => this.firstName;          
@@ -83,9 +90,10 @@ namespace BusinessLogicLayer.Common
             }
         }
         public bool isActive { get => this._isActive; set => this._isActive = value; }
+        public string Image { get; set; }
 
         // Creation of user
-        protected User(string firstName, string lastName, string email, string password, Role role)
+        protected User(string firstName, string lastName, string email, string password, Role role, string image = null)
         {
             this.FirstName = firstName;
             this.LastName = lastName;
@@ -93,16 +101,19 @@ namespace BusinessLogicLayer.Common
             this.Password = password;
             this.Role = role;
             this.isActive = true;
+            this.Image = image;
         }
 
-        // Pulling only necessary data for the user (excluding password for security reasons)
-        protected User(string firstName, string lastName, string email, Role role, bool isActive)
+        // Pulling user from the database (excluding password for security reasons)
+        protected User(int id, string firstName, string lastName, string email, Role role, bool isActive, string image = null)
         {
+            this.Id = id;
             this.FirstName = firstName;
             this.LastName = lastName;
             this.Email = email;
             this.Role = role;
             this.isActive = isActive;
+            this.Image = image;
         }
 
         protected string GetStatus()

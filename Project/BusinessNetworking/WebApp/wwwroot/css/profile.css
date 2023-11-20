@@ -1,0 +1,15 @@
+﻿.profile-container {
+    display: flex;
+    align-items: center;
+    margin: 20px;
+}
+
+.profile-image img {
+    width: 150px; /* Adjust as needed */
+    height: 150px; /* Adjust as needed */
+    border-radius: 50%;
+}
+
+.profile-info {
+    margin-left: 20px;
+}

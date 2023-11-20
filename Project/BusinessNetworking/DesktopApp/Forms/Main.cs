@@ -36,7 +36,7 @@ namespace DesktopApp.Forms
 
         private void btnMeetings_Click(object sender, EventArgs e)
         {
-            Meetings form = new Meetings(loggedAdmin, meetingManager, this);
+            Meetings form = new Meetings(loggedAdmin, userManager, meetingManager, this);
             this.Hide();
             form.ShowDialog();
         }

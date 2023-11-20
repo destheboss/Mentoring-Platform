@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BusinessLogicLayer.Managers
 {
-    public class MeetingManager : IMeetingDataAccess
+    public class MeetingManager
     {
         private readonly IMeetingDataAccess data;
 
@@ -32,11 +32,6 @@ namespace BusinessLogicLayer.Managers
             data.ChangeMeetingTime(meeting, newDate);
         }
 
-        public void RateMeeting(Meeting meeting, int rating)
-        {
-            data.RateMeeting(meeting, rating);
-        }
-
         public IEnumerable<Meeting> GetAllMeetings(string email)
         {
             return data.GetAllMeetings(email);
@@ -50,6 +45,16 @@ namespace BusinessLogicLayer.Managers
         public IEnumerable<Meeting> GetPastMeetings(string email)
         {
             return data.GetPastMeetings(email);
+        }
+
+        public Meeting GetMeetingById(int meetingId)
+        {
+            return data.GetMeetingById(meetingId);
+        }
+
+        public bool UpdateMeetingRating(Meeting? meeting)
+        {
+            return data.UpdateMeetingRating(meeting);
         }
     }
 }

@@ -1,0 +1,56 @@
+﻿@page
+@model WebApp.Pages.RegisterModel
+@{
+    ViewData["Title"] = "Register";
+}
+
+<head>
+    <title>Register</title>
+    <link rel="stylesheet" href="~/css/register.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/Login">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="register-container">
+        <h2>Register</h2>
+        <form method="post" enctype="multipart/form-data">
+            <input asp-for="FirstName" placeholder="First Name" required />
+            <span asp-validation-for="FirstName"></span>
+
+            <input asp-for="LastName" placeholder="Last Name" required />
+            <span asp-validation-for="LastName"></span>
+
+            <input asp-for="Email" type="email" placeholder="Email" required />
+            <span asp-validation-for="Email"></span>
+
+            <input asp-for="Password" type="password" placeholder="Password" required />
+            <span asp-validation-for="Password"></span>
+
+            <input asp-for="ConfirmPassword" type="password" placeholder="Confirm Password" required />
+            <span asp-validation-for="ConfirmPassword"></span>
+
+            <select asp-for="Role">
+                <option value="Mentor">Mentor</option>
+                <option value="Mentee">Mentee</option>
+            </select>
+            <span asp-validation-for="Role"></span>
+
+            <label for="Image">Profile Image:</label>
+            <input type="file" asp-for="Image" accept="image/*" />
+            <span asp-validation-for="Image"></span>
+
+            <button type="submit">Register</button>
+        </form>
+    </div>
+
+    <footer>
+        <p>&copy; 2023 Business Networking. All rights reserved.</p>
+    </footer>
+</body>

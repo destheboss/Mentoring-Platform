@@ -11,9 +11,11 @@ namespace BusinessLogicLayer.Interfaces
         void AddMeeting(Meeting meeting);
         void CancelMeeting(Meeting meeting);
         void ChangeMeetingTime(Meeting meeting, DateTime newDate);
-        void RateMeeting(Meeting meeting, int newRating);
         IEnumerable<Meeting> GetAllMeetings(string email);
         IEnumerable<Meeting> GetUpcomingMeetings(string email);
         IEnumerable<Meeting> GetPastMeetings(string email);
+        void UpdateMeetingEmails(string oldEmail, string newEmail);
+        Meeting GetMeetingById(int meetingId);
+        bool UpdateMeetingRating(Meeting? meeting);
     }
 }

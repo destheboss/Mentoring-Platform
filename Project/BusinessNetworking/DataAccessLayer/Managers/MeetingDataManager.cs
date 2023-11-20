@@ -16,12 +16,16 @@ namespace DataAccessLayer.Managers
             {
                 conn.Open();
 
-                string query = "INSERT INTO Meeting (DateTime, MentorEmail, MenteeEmail, Rating) VALUES (@DateTime, @MentorEmail, @MenteeEmail, @Rating)";
+                string query = @"
+            INSERT INTO Meeting (DateTime, MentorId, MentorEmail, MenteeId, MenteeEmail, Rating) 
+            VALUES (@DateTime, @MentorId, @MentorEmail, @MenteeId, @MenteeEmail, @Rating)";
 
                 using (SqlCommand cmd = new SqlCommand(query, conn))
                 {
                     cmd.Parameters.AddWithValue("@DateTime", meeting.DateTime);
+                    cmd.Parameters.AddWithValue("@MentorId", meeting.MentorId);
                     cmd.Parameters.AddWithValue("@MentorEmail", meeting.MentorEmail);
+                    cmd.Parameters.AddWithValue("@MenteeId", meeting.MenteeId);
                     cmd.Parameters.AddWithValue("@MenteeEmail", meeting.MenteeEmail);
                     cmd.Parameters.AddWithValue("@Rating", meeting.Rating);
 
@@ -80,32 +84,6 @@ namespace DataAccessLayer.Managers
             }
         }
 
-        public void RateMeeting(Meeting meeting, int newMeetingRating)
-        {
-            using (SqlConnection conn = new SqlConnection(connectionString))
-            {
-                conn.Open();
-
-                string query = "UPDATE Meeting SET Rating = @NewRating WHERE DateTime = @DateTime AND MentorEmail = @MentorEmail AND MenteeEmail = @MenteeEmail";
-
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
-                    cmd.Parameters.AddWithValue("@NewRating", newMeetingRating);
-
-                    cmd.Parameters.AddWithValue("@DateTime", meeting.DateTime);
-                    cmd.Parameters.AddWithValue("@MentorEmail", meeting.MentorEmail);
-                    cmd.Parameters.AddWithValue("@MenteeEmail", meeting.MenteeEmail);
-
-                    int rowsAffected = cmd.ExecuteNonQuery();
-
-                    if (rowsAffected == 0)
-                    {
-                        throw new InvalidOperationException("Meeting not found in the database.");
-                    }
-                }
-            }
-        }
-
         private IEnumerable<Meeting> GetMeetings(string email, string additionalCondition)
         {
             List<Meeting> meetings = new List<Meeting>();
@@ -130,11 +108,14 @@ namespace DataAccessLayer.Managers
                         while (reader.Read())
                         {
                             Meeting meeting = new Meeting(
+                                reader.GetInt32(reader.GetOrdinal("Id")),
                                 reader.GetDateTime(reader.GetOrdinal("DateTime")),
+                                reader.GetInt32(reader.GetOrdinal("MentorId")),
                                 reader.GetString(reader.GetOrdinal("MentorEmail")),
-                                reader.GetString(reader.GetOrdinal("MenteeEmail"))
+                                reader.GetInt32(reader.GetOrdinal("MenteeId")),
+                                reader.GetString(reader.GetOrdinal("MenteeEmail")),
+                                reader.GetInt32(reader.GetOrdinal("Rating"))
                             );
-                            meeting.Rating = reader.GetInt32(reader.GetOrdinal("Rating"));
 
                             meetings.Add(meeting);
                         }
@@ -158,6 +139,109 @@ namespace DataAccessLayer.Managers
         public IEnumerable<Meeting> GetPastMeetings(string email)
         {
             return GetMeetings(email, "AND DateTime <= GETDATE()");
+        }
+
+        public void UpdateMeetingEmails(string oldEmail, string newEmail)
+        {
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+
+                string mentorUpdateQuery = @"
+                    UPDATE Meeting 
+                    SET MentorEmail = @NewEmail 
+                    WHERE MentorEmail = @OldEmail";
+
+                using (SqlCommand mentorCmd = new SqlCommand(mentorUpdateQuery, conn))
+                {
+                    mentorCmd.Parameters.AddWithValue("@NewEmail", newEmail);
+                    mentorCmd.Parameters.AddWithValue("@OldEmail", oldEmail);
+
+                    mentorCmd.ExecuteNonQuery();
+                }
+
+                string menteeUpdateQuery = @"
+                    UPDATE Meeting 
+                    SET MenteeEmail = @NewEmail 
+                    WHERE MenteeEmail = @OldEmail";
+
+                using (SqlCommand menteeCmd = new SqlCommand(menteeUpdateQuery, conn))
+                {
+                    menteeCmd.Parameters.AddWithValue("@NewEmail", newEmail);
+                    menteeCmd.Parameters.AddWithValue("@OldEmail", oldEmail);
+
+                    menteeCmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public Meeting GetMeetingById(int meetingId)
+        {
+            Meeting meeting = null;
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+
+                string query = "SELECT * FROM Meeting WHERE Id = @MeetingId";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@MeetingId", meetingId);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            meeting = new Meeting(
+                                reader.GetInt32(reader.GetOrdinal("Id")),
+                                reader.GetDateTime(reader.GetOrdinal("DateTime")),
+                                reader.GetInt32(reader.GetOrdinal("MentorId")),
+                                reader.GetString(reader.GetOrdinal("MentorEmail")),
+                                reader.GetInt32(reader.GetOrdinal("MenteeId")),
+                                reader.GetString(reader.GetOrdinal("MenteeEmail")),
+                                reader.GetInt32(reader.GetOrdinal("Rating"))
+                            );
+                        }
+                    }
+                }
+            }
+
+            return meeting;
+        }
+
+        public bool UpdateMeetingRating(Meeting? meeting)
+        {
+            if (meeting == null)
+            {
+                return false;
+            }
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+
+                    string query = @"
+                UPDATE Meeting 
+                SET Rating = @Rating 
+                WHERE Id = @Id";
+
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@Rating", meeting.Rating);
+                        cmd.Parameters.AddWithValue("@Id", meeting.Id);
+
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        return rowsAffected > 0;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Database error occurred while updating the meeting's rating: {ex.Message}", ex);
+            }
         }
     }
 }

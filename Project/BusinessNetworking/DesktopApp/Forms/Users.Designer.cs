@@ -43,10 +43,14 @@ namespace DesktopApp.Forms
             lblLastName = new Label();
             lblFirstName = new Label();
             viewUsersTab = new TabPage();
-            btnRemovePerson = new Button();
+            btnRemove = new Button();
+            btnActivate = new Button();
+            btnEdit = new Button();
+            btnSuspendPerson = new Button();
             cbxSearch = new ComboBox();
             tbxSearch = new TextBox();
             lbxUsers = new ListBox();
+            btnUpdate = new Button();
             panel.SuspendLayout();
             mainPanel.SuspendLayout();
             tabControl.SuspendLayout();
@@ -221,7 +225,11 @@ namespace DesktopApp.Forms
             // viewUsersTab
             // 
             viewUsersTab.BackColor = Color.DeepSkyBlue;
-            viewUsersTab.Controls.Add(btnRemovePerson);
+            viewUsersTab.Controls.Add(btnUpdate);
+            viewUsersTab.Controls.Add(btnRemove);
+            viewUsersTab.Controls.Add(btnActivate);
+            viewUsersTab.Controls.Add(btnEdit);
+            viewUsersTab.Controls.Add(btnSuspendPerson);
             viewUsersTab.Controls.Add(cbxSearch);
             viewUsersTab.Controls.Add(tbxSearch);
             viewUsersTab.Controls.Add(lbxUsers);
@@ -231,24 +239,59 @@ namespace DesktopApp.Forms
             viewUsersTab.TabIndex = 1;
             viewUsersTab.Text = "View Users";
             // 
-            // btnRemovePerson
+            // btnRemove
             // 
-            btnRemovePerson.BackColor = Color.Crimson;
-            btnRemovePerson.Location = new Point(13, 412);
-            btnRemovePerson.Name = "btnRemovePerson";
-            btnRemovePerson.Size = new Size(112, 34);
-            btnRemovePerson.TabIndex = 2;
-            btnRemovePerson.Text = "Remove";
-            btnRemovePerson.UseVisualStyleBackColor = false;
-            btnRemovePerson.Click += btnRemovePerson_Click;
+            btnRemove.BackColor = Color.Crimson;
+            btnRemove.Location = new Point(367, 412);
+            btnRemove.Name = "btnRemove";
+            btnRemove.Size = new Size(112, 34);
+            btnRemove.TabIndex = 5;
+            btnRemove.Text = "Remove";
+            btnRemove.UseVisualStyleBackColor = false;
+            btnRemove.Click += btnRemove_Click;
+            // 
+            // btnActivate
+            // 
+            btnActivate.BackColor = Color.LimeGreen;
+            btnActivate.Location = new Point(249, 412);
+            btnActivate.Name = "btnActivate";
+            btnActivate.Size = new Size(112, 34);
+            btnActivate.TabIndex = 4;
+            btnActivate.Text = "Activate";
+            btnActivate.UseVisualStyleBackColor = false;
+            btnActivate.Click += btnActivate_Click;
+            // 
+            // btnEdit
+            // 
+            btnEdit.BackColor = Color.Goldenrod;
+            btnEdit.Location = new Point(131, 412);
+            btnEdit.Name = "btnEdit";
+            btnEdit.Size = new Size(112, 34);
+            btnEdit.TabIndex = 3;
+            btnEdit.Text = "Edit";
+            btnEdit.UseVisualStyleBackColor = false;
+            btnEdit.Click += btnEdit_Click;
+            // 
+            // btnSuspendPerson
+            // 
+            btnSuspendPerson.BackColor = Color.Crimson;
+            btnSuspendPerson.Location = new Point(13, 412);
+            btnSuspendPerson.Name = "btnSuspendPerson";
+            btnSuspendPerson.Size = new Size(112, 34);
+            btnSuspendPerson.TabIndex = 2;
+            btnSuspendPerson.Text = "Suspend";
+            btnSuspendPerson.UseVisualStyleBackColor = false;
+            btnSuspendPerson.Click += btnSuspendPerson_Click;
             // 
             // cbxSearch
             // 
+            cbxSearch.DropDownStyle = ComboBoxStyle.DropDownList;
             cbxSearch.FormattingEnabled = true;
             cbxSearch.Location = new Point(13, 55);
             cbxSearch.Name = "cbxSearch";
             cbxSearch.Size = new Size(150, 33);
             cbxSearch.TabIndex = 1;
+            cbxSearch.SelectedIndexChanged += cbxSearch_SelectedIndexChanged;
             // 
             // tbxSearch
             // 
@@ -266,6 +309,17 @@ namespace DesktopApp.Forms
             lbxUsers.Name = "lbxUsers";
             lbxUsers.Size = new Size(734, 304);
             lbxUsers.TabIndex = 1;
+            // 
+            // btnUpdate
+            // 
+            btnUpdate.BackColor = Color.LimeGreen;
+            btnUpdate.Location = new Point(485, 412);
+            btnUpdate.Name = "btnUpdate";
+            btnUpdate.Size = new Size(151, 34);
+            btnUpdate.TabIndex = 6;
+            btnUpdate.Text = "Update Ratings";
+            btnUpdate.UseVisualStyleBackColor = false;
+            btnUpdate.Click += btnUpdate_Click;
             // 
             // Users
             // 
@@ -309,6 +363,10 @@ namespace DesktopApp.Forms
         private ComboBox cbxSearch;
         private TextBox tbxSearch;
         private ListBox lbxUsers;
-        private Button btnRemovePerson;
+        private Button btnSuspendPerson;
+        private Button btnEdit;
+        private Button btnActivate;
+        private Button btnRemove;
+        private Button btnUpdate;
     }
 }

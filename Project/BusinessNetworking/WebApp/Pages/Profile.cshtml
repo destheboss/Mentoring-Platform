@@ -1,0 +1,32 @@
+﻿@page
+@model WebApp.Pages.ProfileModel
+@{
+    ViewData["Title"] = "Profile";
+}
+
+<head>
+    <title>Profile</title>
+    <link rel="stylesheet" href="~/css/profile.css">
+</head>
+<body>
+    <header>
+        <!-- Include your header navigation here -->
+    </header>
+
+    <main>
+        <div class="profile-container">
+            <div class="profile-image">
+                <img src="@Model.User.Image" alt="Profile Picture" />
+            </div>
+            <div class="profile-info">
+                <h2>@Model.User.FirstName @Model.User.LastName</h2>
+                <p>@Model.User.Role</p>
+                <!-- Add more user details here if needed -->
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <!-- Include your standard footer here -->
+    </footer>
+</body>

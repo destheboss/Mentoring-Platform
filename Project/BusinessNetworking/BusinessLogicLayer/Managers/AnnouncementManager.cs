@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace BusinessLogicLayer.Managers
 {
-    public class AnnouncementManager : IAnnouncementDataAccess
+    public class AnnouncementManager
     {
         private readonly IAnnouncementDataAccess data;
 

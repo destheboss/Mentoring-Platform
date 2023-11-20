@@ -1,0 +1,37 @@
+﻿body {
+    font-family: Arial, sans-serif;
+}
+
+/* Header navigation */
+header {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+}
+
+nav ul {
+    list-style: none;
+}
+
+    nav ul li {
+        display: inline;
+        margin-right: 20px;
+    }
+
+/* Main content */
+main {
+    padding: 20px;
+}
+
+.featured-stories {
+    text-align: center;
+}
+
+/* Footer */
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+}

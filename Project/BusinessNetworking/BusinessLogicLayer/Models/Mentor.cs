@@ -14,15 +14,15 @@ namespace BusinessLogicLayer.Models
         public float Rating { get => this.rating; set => this.rating = value; }
 
         // Creation of user
-        public Mentor(string firstName, string lastName, string email, string password, Role role)
-            : base(firstName, lastName, email, password, role)
+        public Mentor(string firstName, string lastName, string email, string password, Role role, string image = null)
+            : base(firstName, lastName, email, password, role, image)
         {
             this.Rating = 0;
         }
 
-        // Pulling only necessary data for the user (excluding password for security reasons)
-        public Mentor(string firstName, string lastName, string email, Role role, bool isActive, float rating)
-        : base(firstName, lastName, email, role, isActive)
+        // Pulling user from the database (excluding password for security reasons)
+        public Mentor(int id, string firstName, string lastName, string email, Role role, bool isActive, float rating, string image = null)
+        : base(id, firstName, lastName, email, role, isActive, image)
         {
             this.Rating = rating;
         }
