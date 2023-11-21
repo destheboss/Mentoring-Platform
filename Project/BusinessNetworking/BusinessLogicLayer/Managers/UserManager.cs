@@ -45,7 +45,7 @@ namespace BusinessLogicLayer.Managers
             return data.GetMentees();
         }
 
-        public IPerson? GetPersonByEmail(string email)
+        public virtual IPerson? GetPersonByEmail(string email)
         {
             return data.GetPersonByEmail(email);
         }
@@ -77,7 +77,7 @@ namespace BusinessLogicLayer.Managers
             }
         }
 
-        public void UpdateMentorAverageRating(Mentor mentor)
+        public virtual void UpdateMentorAverageRating(Mentor mentor)
         {
             data.UpdateMentorAverageRating(mentor);
         }

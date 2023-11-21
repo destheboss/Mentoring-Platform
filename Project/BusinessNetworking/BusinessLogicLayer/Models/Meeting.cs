@@ -21,7 +21,18 @@ namespace BusinessLogicLayer.Models
         public string MentorEmail { get => this.mentorEmail; set => this.mentorEmail = value;}
         public int MenteeId { get => this.menteeId; set => this.menteeId = value; }
         public string MenteeEmail { get => this.menteeEmail; set => this.menteeEmail = value;}
-        public int Rating { get => this.rating; set => this.rating = value;}
+        public int Rating
+        {
+            get => this.rating;
+            set
+            {
+                if (value < 0 || value > 5)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(value), "Rating must be between 0 and 5.");
+                }
+                this.rating = value;
+            }
+        }
 
         // Creation of meeting
         public Meeting(DateTime dateTime, int mentorId, string mentorEmail, int menteeId, string menteeEmail)

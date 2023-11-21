@@ -32,7 +32,7 @@ namespace BusinessLogicLayer.Managers
             data.ChangeMeetingTime(meeting, newDate);
         }
 
-        public IEnumerable<Meeting> GetAllMeetings(string email)
+        public virtual IEnumerable<Meeting> GetAllMeetings(string email)
         {
             return data.GetAllMeetings(email);
         }
@@ -47,12 +47,12 @@ namespace BusinessLogicLayer.Managers
             return data.GetPastMeetings(email);
         }
 
-        public Meeting GetMeetingById(int meetingId)
+        public virtual Meeting GetMeetingById(int meetingId)
         {
             return data.GetMeetingById(meetingId);
         }
 
-        public bool UpdateMeetingRating(Meeting? meeting)
+        public virtual bool UpdateMeetingRating(Meeting? meeting)
         {
             return data.UpdateMeetingRating(meeting);
         }
