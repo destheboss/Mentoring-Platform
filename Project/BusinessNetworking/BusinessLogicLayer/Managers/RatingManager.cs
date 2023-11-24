@@ -51,6 +51,7 @@ namespace BusinessLogicLayer.Managers
             {
                 meeting.Rating = rating;
                 _meetingManager.UpdateMeetingRating(meeting);
+                UpdateMentorRating(meeting.MentorEmail);
             }
         }
 
@@ -66,16 +67,6 @@ namespace BusinessLogicLayer.Managers
             }
 
             return topRatedMentors;
-        }
-
-        public void UpdateAllMentorsRatings()
-        {
-            var allMentors = _userManager.GetMentors().ToList();
-
-            foreach (var mentor in allMentors)
-            {
-                UpdateMentorRating(mentor.Email);
-            }
         }
     }
 }

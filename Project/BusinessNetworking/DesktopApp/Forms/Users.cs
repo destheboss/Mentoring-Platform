@@ -238,7 +238,7 @@ namespace DesktopApp.Forms
                 return;
             }
 
-            IPerson selectedUser = (IPerson)lbxUsers.SelectedItem;
+            User selectedUser = (User)lbxUsers.SelectedItem;
             UsersEdit form = new UsersEdit(userManager, this, selectedUser);
             form.ShowDialog();
         }
@@ -315,11 +315,6 @@ namespace DesktopApp.Forms
             {
                 MessageBox.Show(ex.Message);
             }
-        }
-
-        private void btnUpdate_Click(object sender, EventArgs e)
-        {
-            ratingManager.UpdateAllMentorsRatings();
         }
     }
 }

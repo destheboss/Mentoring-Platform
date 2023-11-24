@@ -1,4 +1,5 @@
-﻿using BusinessLogicLayer.Interfaces;
+﻿using BusinessLogicLayer.Common;
+using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Managers;
 using BusinessLogicLayer.Models;
 using System;
@@ -16,8 +17,8 @@ namespace DesktopApp.Forms
     {
         private UserManager userManager;
         private Users usersForm;
-        private IPerson selectedUser;
-        public UsersEdit(UserManager userManager, Users usersForm, IPerson selectedUser)
+        private User selectedUser;
+        public UsersEdit(UserManager userManager, Users usersForm, User selectedUser)
         {
             this.userManager = userManager;
             this.usersForm = usersForm;
@@ -50,7 +51,24 @@ namespace DesktopApp.Forms
                 string newPassword = tbxNewPassword.Text;
                 Role newRole = (Role)cbxRoles.SelectedItem;
 
-                bool updateSuccessful = userManager.UpdatePersonInfo(selectedUser, newFirstName, newLastName, newEmail, newPassword, newRole);
+                User updatedUser;
+
+                switch (newRole)
+                {
+                    case Role.Admin:
+                        updatedUser = new Admin(newFirstName, newLastName, newEmail, newPassword, newRole);
+                        break;
+                    case Role.Mentor:
+                        updatedUser = new Mentor(newFirstName, newLastName, newEmail, newPassword, newRole);
+                        break;
+                    case Role.Mentee:
+                        updatedUser = new Mentee(newFirstName, newLastName, newEmail, newPassword, newRole);
+                        break;
+                    default:
+                        throw new InvalidOperationException("Unsupported role type.");
+                }
+
+                bool updateSuccessful = userManager.UpdatePersonInfo(selectedUser, updatedUser);
 
                 if (updateSuccessful)
                 {

@@ -16,7 +16,7 @@ namespace BusinessLogicLayer.Interfaces
         IEnumerable<Mentee> GetMentees();
         IPerson? GetPersonByEmail(string email);
         List<IPerson> GetAllPersons();
-        bool UpdatePersonInfo(IPerson person, string newFirstName, string newLastName, string newEmail, string newPassword, Role newRole);
+        bool UpdatePersonInfo(User currentUser, User updatedUser);
         void UpdateMentorAverageRating(Mentor mentor);
     }
 }

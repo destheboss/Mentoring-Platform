@@ -14,11 +14,11 @@ namespace WebApp.Pages
         public string Email { get; set; }
         [BindProperty]
         public string Password { get; set; }
-        private readonly LoggingManager loggingManager;
+        private readonly AuthenticationManager authenticationManager;
 
-        public LoginModel(LoggingManager loggingManager)
+        public LoginModel(AuthenticationManager authenticationManager)
         {
-            this.loggingManager = loggingManager;
+            this.authenticationManager = authenticationManager;
         }
 
         public void OnGet()
@@ -33,7 +33,7 @@ namespace WebApp.Pages
                 return Page();
             }
 
-            bool isAuthenticated = loggingManager.CheckCredentialsForUser(Email, Password);
+            bool isAuthenticated = authenticationManager.CheckCredentialsForUser(Email, Password);
             string message = string.Empty;
 
             if (isAuthenticated)

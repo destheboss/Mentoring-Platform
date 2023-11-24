@@ -7,7 +7,6 @@ namespace BusinessLogicLayer.Interfaces
 {
     public interface IAuthenticationDataAccess
     {
-        bool[] CheckCredentialsForAdmin(string email, string password);
-        bool CheckCredentialsForUser(string email, string password);
+        (byte[] passwordHash, byte[] passwordSalt, string role) GetUserCredentials(string email);
     }
 }

@@ -50,7 +50,6 @@ namespace DesktopApp.Forms
             cbxSearch = new ComboBox();
             tbxSearch = new TextBox();
             lbxUsers = new ListBox();
-            btnUpdate = new Button();
             panel.SuspendLayout();
             mainPanel.SuspendLayout();
             tabControl.SuspendLayout();
@@ -225,7 +224,6 @@ namespace DesktopApp.Forms
             // viewUsersTab
             // 
             viewUsersTab.BackColor = Color.DeepSkyBlue;
-            viewUsersTab.Controls.Add(btnUpdate);
             viewUsersTab.Controls.Add(btnRemove);
             viewUsersTab.Controls.Add(btnActivate);
             viewUsersTab.Controls.Add(btnEdit);
@@ -310,17 +308,6 @@ namespace DesktopApp.Forms
             lbxUsers.Size = new Size(734, 304);
             lbxUsers.TabIndex = 1;
             // 
-            // btnUpdate
-            // 
-            btnUpdate.BackColor = Color.LimeGreen;
-            btnUpdate.Location = new Point(485, 412);
-            btnUpdate.Name = "btnUpdate";
-            btnUpdate.Size = new Size(151, 34);
-            btnUpdate.TabIndex = 6;
-            btnUpdate.Text = "Update Ratings";
-            btnUpdate.UseVisualStyleBackColor = false;
-            btnUpdate.Click += btnUpdate_Click;
-            // 
             // Users
             // 
             AutoScaleDimensions = new SizeF(10F, 25F);
@@ -367,6 +354,5 @@ namespace DesktopApp.Forms
         private Button btnEdit;
         private Button btnActivate;
         private Button btnRemove;
-        private Button btnUpdate;
     }
 }

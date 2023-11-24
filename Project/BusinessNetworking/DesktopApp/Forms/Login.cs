@@ -18,13 +18,13 @@ namespace DesktopApp.Forms
     {
         private UserManager userManager;
         private MeetingManager meetingManager;
-        private LoggingManager loggingManager;
+        private AuthenticationManager authenticationManager;
 
-        public Login(UserManager userManager, MeetingManager meetingManager, LoggingManager loggingManager)
+        public Login(UserManager userManager, MeetingManager meetingManager, AuthenticationManager authenticationManager)
         {
             this.userManager = userManager;
             this.meetingManager = meetingManager;
-            this.loggingManager = loggingManager;
+            this.authenticationManager = authenticationManager;
 
             //Admin admin = new Admin("Desislav", "Hristov", "admin@gmail.com", "123", Role.Admin);
             //userManager.AddPerson(admin);
@@ -34,7 +34,7 @@ namespace DesktopApp.Forms
 
         private void btnLogin_Click(object sender, EventArgs e)
         {
-            bool[] checkResults = loggingManager.CheckCredentialsForAdmin(tbUsername.Text, tbPassword.Text);
+            bool[] checkResults = authenticationManager.CheckCredentialsForAdmin(tbUsername.Text, tbPassword.Text);
 
             if (checkResults[0] == false && checkResults[1] == true)
             {

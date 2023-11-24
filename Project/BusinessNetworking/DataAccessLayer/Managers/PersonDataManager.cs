@@ -14,14 +14,10 @@ namespace DataAccessLayer.Managers
     public class PersonDataManager : ConnectionSQL, IPersonDataAccess
     {
         private readonly IMeetingDataAccess meetingDataAccess;
-        private readonly HashingManager hashingManager;
-        private readonly PasswordStrengthChecker passwordStrengthChecker;
 
-        public PersonDataManager(IMeetingDataAccess meetingDataAccess, HashingManager hashingManager, PasswordStrengthChecker passwordStrengthChecker)
+        public PersonDataManager(IMeetingDataAccess meetingDataAccess)
         {
             this.meetingDataAccess = meetingDataAccess;
-            this.hashingManager = hashingManager;
-            this.passwordStrengthChecker = passwordStrengthChecker;
         }
 
         private void ExecuteQuery(Action<SqlConnection> action)
@@ -46,13 +42,6 @@ namespace DataAccessLayer.Managers
         {
             try
             {
-                if (!passwordStrengthChecker.IsPasswordStrong(user.Password))
-                {
-                    throw new ArgumentException("Password does not meet the strength requirements.");
-                }
-
-                var (hash, salt) = hashingManager.GenerateHashWithSalt(user.Password);
-
                 string personQuery = @"
             INSERT INTO Person (FirstName, LastName, Email, PasswordHash, PasswordSalt, Role, IsActive, Image) 
             OUTPUT INSERTED.Id 
@@ -68,8 +57,8 @@ namespace DataAccessLayer.Managers
                         command.Parameters.AddWithValue("@FirstName", user.FirstName);
                         command.Parameters.AddWithValue("@LastName", user.LastName);
                         command.Parameters.AddWithValue("@Email", user.Email);
-                        command.Parameters.AddWithValue("@PasswordHash", hash);
-                        command.Parameters.AddWithValue("@PasswordSalt", salt);
+                        command.Parameters.AddWithValue("@PasswordHash", Convert.FromBase64String(user.PasswordHash));
+                        command.Parameters.AddWithValue("@PasswordSalt", Convert.FromBase64String(user.PasswordSalt));
                         command.Parameters.AddWithValue("@Role", user.Role.ToString());
                         command.Parameters.AddWithValue("@IsActive", user.isActive);
                         command.Parameters.AddWithValue("@Image", (object)user.Image ?? DBNull.Value);
@@ -153,17 +142,6 @@ namespace DataAccessLayer.Managers
                         {
                             throw new InvalidOperationException("Person not found in the database.");
                         }
-                        else
-                        {
-                            if (!string.IsNullOrWhiteSpace(user.Image))
-                            {
-                                string imagePath = Path.Combine("wwwroot", user.Image);
-                                if (File.Exists(imagePath))
-                                {
-                                    File.Delete(imagePath);
-                                }
-                            }
-                        }
                     }
                 }
             }
@@ -215,7 +193,6 @@ namespace DataAccessLayer.Managers
             {
                 ExecuteQuery(connection =>
                 {
-                    //string query = "SELECT * FROM Person WHERE Role = @Role";
                     string query = role == Role.Mentor
                ? "SELECT p.*, m.Rating FROM Person p LEFT JOIN Mentor m ON p.Id = m.PersonId WHERE p.Role = @Role"
                : "SELECT * FROM Person WHERE Role = @Role";
@@ -358,10 +335,8 @@ namespace DataAccessLayer.Managers
             }
         }
 
-        public bool UpdatePersonInfo(IPerson person, string newFirstName, string newLastName, string newEmail, string newPassword, Role newRole)
+        public bool UpdatePersonInfo(User oldUser, User updatedUser)
         {
-            var (hash, salt) = hashingManager.GenerateHashWithSalt(newPassword);
-
             try
             {
                 string query = @"
@@ -380,13 +355,17 @@ namespace DataAccessLayer.Managers
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
-                        command.Parameters.AddWithValue("@newFirstName", newFirstName);
-                        command.Parameters.AddWithValue("@newLastName", newLastName);
-                        command.Parameters.AddWithValue("@newEmail", newEmail);
-                        command.Parameters.AddWithValue("@newPasswordHash", hash);
-                        command.Parameters.AddWithValue("@newPasswordSalt", salt);
-                        command.Parameters.AddWithValue("@newRole", newRole.ToString());
-                        command.Parameters.AddWithValue("@Id", person.Id);
+                        command.Parameters.AddWithValue("@newFirstName", updatedUser.FirstName);
+                        command.Parameters.AddWithValue("@newLastName", updatedUser.LastName);
+                        command.Parameters.AddWithValue("@newEmail", updatedUser.Email);
+
+                        var passwordHashBytes = Convert.FromBase64String(updatedUser.PasswordHash);
+                        var passwordSaltBytes = Convert.FromBase64String(updatedUser.PasswordSalt);
+
+                        command.Parameters.AddWithValue("@newPasswordHash", passwordHashBytes);
+                        command.Parameters.AddWithValue("@newPasswordSalt", passwordSaltBytes);
+                        command.Parameters.AddWithValue("@newRole", updatedUser.Role.ToString());
+                        command.Parameters.AddWithValue("@Id", oldUser.Id);
 
                         int rowsAffected = command.ExecuteNonQuery();
                         return rowsAffected > 0;

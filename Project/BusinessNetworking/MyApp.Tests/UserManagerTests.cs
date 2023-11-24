@@ -12,13 +12,15 @@ namespace MyApp.Tests
         private Mock<IPersonDataAccess> _mockDataAccess;
         private Mock<IMeetingDataAccess> _mockMeetingDataAccess;
         private UserManager _userManager;
+        private HashingManager _hashingManager;
+        private PasswordStrengthChecker _passwordStrengthChecker;
 
         [TestInitialize]
         public void Initialize()
         {
             _mockDataAccess = new Mock<IPersonDataAccess>();
             _mockMeetingDataAccess = new Mock<IMeetingDataAccess>();
-            _userManager = new UserManager(_mockDataAccess.Object, _mockMeetingDataAccess.Object);
+            _userManager = new UserManager(_mockDataAccess.Object, _mockMeetingDataAccess.Object, _hashingManager, _passwordStrengthChecker);
         }
 
         [TestMethod]
@@ -56,16 +58,20 @@ namespace MyApp.Tests
         [TestMethod]
         public void UpdatePersonInfo_WhenCalled_UpdatesPersonAndMeetingsIfNotAdmin()
         {
-            var person = new Mentor("John", "Doe", "john@example.com", "Password123!", Role.Mentor, "imagePath");
-            string newEmail = "newjohn@example.com";
+            var currentUser = new Mentor("John", "Doe", "john@example.com", "Password123!", Role.Mentor, "imagePath");
+            var updatedUser = new Mentor("John", "Doe", "newjohn@example.com", "Password123!", Role.Mentor, "imagePath");
 
-            _mockDataAccess.Setup(m => m.UpdatePersonInfo(It.IsAny<IPerson>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Role>()))
-                               .Returns(true);
+            _mockDataAccess.Setup(m => m.UpdatePersonInfo(It.IsAny<User>(), It.IsAny<User>()))
+                           .Returns(true);
 
-            var result = _userManager.UpdatePersonInfo(person, "John", "Doe", newEmail, "newpassword", Role.Mentor);
+            var result = _userManager.UpdatePersonInfo(currentUser, updatedUser);
 
             Assert.IsTrue(result);
-            _mockMeetingDataAccess.Verify(m => m.UpdateMeetingEmails(person.Email, newEmail), Times.Once);
+
+            if (currentUser.Role != Role.Admin)
+            {
+                _mockMeetingDataAccess.Verify(m => m.UpdateMeetingEmails(currentUser.Email, updatedUser.Email), Times.Once);
+            }
         }
     }
 }

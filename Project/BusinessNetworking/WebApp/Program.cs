@@ -25,10 +25,10 @@ builder.Services.AddRazorPages();
 // Register IPersonDataAccess and its implementation.
 builder.Services.AddScoped<BusinessLogicLayer.Interfaces.IAuthenticationDataAccess, DataAccessLayer.Managers.AuthenticationDataManager>();
 builder.Services.AddScoped<BusinessLogicLayer.Interfaces.IPersonDataAccess, DataAccessLayer.Managers.PersonDataManager>();
-builder.Services.AddScoped<BusinessLogicLayer.Managers.LoggingManager>();
-builder.Services.AddScoped<BusinessLogicLayer.Managers.HashingManager>();
-builder.Services.AddScoped<BusinessLogicLayer.Managers.UserManager>();
-builder.Services.AddScoped<BusinessLogicLayer.Managers.PasswordStrengthChecker>();
+builder.Services.AddScoped<AuthenticationManager>();
+builder.Services.AddScoped<HashingManager>();
+builder.Services.AddScoped<UserManager>();
+builder.Services.AddScoped<PasswordStrengthChecker>();
 builder.Services.AddScoped<BusinessLogicLayer.Interfaces.IMeetingDataAccess, DataAccessLayer.Managers.MeetingDataManager>();
 
 var app = builder.Build();

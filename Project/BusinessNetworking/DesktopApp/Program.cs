@@ -18,10 +18,10 @@ namespace DesktopApp.Forms
             HashingManager hashingManager = new HashingManager();
             PasswordStrengthChecker passwordStrengthChecker = new PasswordStrengthChecker();
             IMeetingDataAccess meetingData = new MeetingDataManager();
-            IPersonDataAccess personData = new PersonDataManager(meetingData, hashingManager, passwordStrengthChecker);
-            IAuthenticationDataAccess authenticationDataAccess = new AuthenticationDataManager(hashingManager);
-            UserManager userManager = new UserManager(personData, meetingData);
-            LoggingManager loggingManager = new LoggingManager(authenticationDataAccess);
+            IPersonDataAccess personData = new PersonDataManager(meetingData);
+            IAuthenticationDataAccess authenticationDataAccess = new AuthenticationDataManager();
+            UserManager userManager = new UserManager(personData, meetingData, hashingManager, passwordStrengthChecker);
+            AuthenticationManager authenticationManager = new AuthenticationManager(authenticationDataAccess, hashingManager, userManager);
             MeetingManager meetingManager = new MeetingManager(meetingData);
             // To customize application configuration such as set high DPI settings or default font,
             // see https://aka.ms/applicationconfiguration.
@@ -29,7 +29,7 @@ namespace DesktopApp.Forms
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             ApplicationConfiguration.Initialize();
-            Application.Run(new Login(userManager, meetingManager, loggingManager));
+            Application.Run(new Login(userManager, meetingManager, authenticationManager));
         }
     }
 }
