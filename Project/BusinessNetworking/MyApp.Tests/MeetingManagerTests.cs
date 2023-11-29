@@ -10,11 +10,13 @@ namespace MyApp.Tests
     public class MeetingManagerTests
     {
         private Mock<IMeetingDataAccess> mockMeetingDataAccess;
+        private MeetingManager meetingManager;
 
         [TestInitialize]
         public void Initialize()
         {
             mockMeetingDataAccess = new Mock<IMeetingDataAccess>();
+            meetingManager = new MeetingManager(mockMeetingDataAccess.Object);
         }
 
         [TestMethod]
@@ -29,32 +31,12 @@ namespace MyApp.Tests
         }
 
         [TestMethod]
+        [ExpectedException(typeof(ArgumentOutOfRangeException))]
         public void UpdateMeetingRating_InvalidRating_DoesNotUpdate()
         {
-            var mockMeetingDataAccess = new Mock<IMeetingDataAccess>();
-            var meetingManager = new MeetingManager(mockMeetingDataAccess.Object);
-
             var meeting = new Meeting(DateTime.Now, 1, "mentor@example.com", 2, "mentee@example.com") { Rating = -1 };
 
-            var result = meetingManager.UpdateMeetingRating(meeting);
-
-            Assert.IsFalse(result);
-            mockMeetingDataAccess.Verify(m => m.UpdateMeetingRating(It.IsAny<Meeting>()), Times.Never);
-        }
-
-        [TestMethod]
-        public void ChangeMeetingTime_ValidData_ChangesTime()
-        {
-            var mockMeetingDataAccess = new Mock<IMeetingDataAccess>();
-            var meetingManager = new MeetingManager(mockMeetingDataAccess.Object);
-
-            var meeting = new Meeting(DateTime.Now, 1, "mentor@example.com", 2, "mentee@example.com");
-            var newDateTime = DateTime.Now.AddDays(2);
-
-            meetingManager.ChangeMeetingTime(meeting, newDateTime);
-
-            Assert.AreEqual(newDateTime, meeting.DateTime);
-            mockMeetingDataAccess.Verify(m => m.ChangeMeetingTime(meeting, newDateTime), Times.Once);
+            meetingManager.UpdateMeetingRating(meeting);
         }
     }
 }

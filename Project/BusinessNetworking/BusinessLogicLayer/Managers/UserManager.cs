@@ -1,9 +1,11 @@
 ﻿using BusinessLogicLayer.Common;
 using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Models;
+using BusinessLogicLayer.Strategies;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Transactions;
 
@@ -14,19 +16,48 @@ namespace BusinessLogicLayer.Managers
         private readonly IPersonDataAccess data;
         private readonly IMeetingDataAccess meetingData;
         private readonly HashingManager hashingManager;
-        private readonly PasswordStrengthChecker passwordStrengthChecker;
 
-        public UserManager(IPersonDataAccess data, IMeetingDataAccess meetingData, HashingManager hashingManager, PasswordStrengthChecker passwordStrengthChecker)
+        public UserManager(IPersonDataAccess data, IMeetingDataAccess meetingData, HashingManager hashingManager)
         {
             this.data = data;
             this.meetingData = meetingData;
             this.hashingManager = hashingManager;
-            this.passwordStrengthChecker = passwordStrengthChecker;
+        }
+
+        private IPasswordStrengthStrategy GetPasswordStrengthStrategy(Role role)
+        {
+            switch (role)
+            {
+                case Role.Mentee:
+                    return new MenteePasswordStrengthStrategy();
+                case Role.Mentor:
+                    return new MentorPasswordStrengthStrategy();
+                case Role.Admin:
+                    return new AdminPasswordStrengthStrategy();
+                default:
+                    throw new ArgumentException("Invalid role");
+            }
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            email = email.Trim().ToLower();
+            string pattern = @"^\S+@\S+\.\S+$";
+            var regex = new Regex(pattern);
+            return regex.IsMatch(email);
         }
 
         public void AddPerson(User user)
         {
-            if (!passwordStrengthChecker.IsPasswordStrong(user.Password))
+            user.Email = user.Email.Trim().ToLower();
+
+            if (!IsValidEmail(user.Email))
+            {
+                throw new ArgumentException("Email is not valid.");
+            }
+
+            var strategy = GetPasswordStrengthStrategy(user.Role);
+            if (!strategy.IsPasswordStrong(user.Password))
             {
                 throw new ArgumentException("Password does not meet the strength requirements.");
             }

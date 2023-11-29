@@ -31,6 +31,9 @@ namespace DesktopApp.Forms
             mainPanel = new Panel();
             tabControl = new TabControl();
             createUserTab = new TabPage();
+            btnAdd = new Button();
+            cbxSpecialty = new ComboBox();
+            label1 = new Label();
             btnSubmit = new Button();
             lblRoles = new Label();
             cbxRoles = new ComboBox();
@@ -104,6 +107,9 @@ namespace DesktopApp.Forms
             // createUserTab
             // 
             createUserTab.BackColor = Color.Gainsboro;
+            createUserTab.Controls.Add(btnAdd);
+            createUserTab.Controls.Add(cbxSpecialty);
+            createUserTab.Controls.Add(label1);
             createUserTab.Controls.Add(btnSubmit);
             createUserTab.Controls.Add(lblRoles);
             createUserTab.Controls.Add(cbxRoles);
@@ -121,12 +127,43 @@ namespace DesktopApp.Forms
             createUserTab.TabIndex = 0;
             createUserTab.Text = "Create User";
             // 
+            // btnAdd
+            // 
+            btnAdd.BackColor = Color.DarkOliveGreen;
+            btnAdd.ForeColor = SystemColors.ButtonFace;
+            btnAdd.Location = new Point(525, 321);
+            btnAdd.Name = "btnAdd";
+            btnAdd.Size = new Size(112, 34);
+            btnAdd.TabIndex = 13;
+            btnAdd.Text = "Add";
+            btnAdd.UseVisualStyleBackColor = false;
+            btnAdd.Click += btnAdd_Click;
+            // 
+            // cbxSpecialty
+            // 
+            cbxSpecialty.DropDownStyle = ComboBoxStyle.DropDownList;
+            cbxSpecialty.FormattingEnabled = true;
+            cbxSpecialty.Location = new Point(292, 322);
+            cbxSpecialty.Name = "cbxSpecialty";
+            cbxSpecialty.Size = new Size(200, 33);
+            cbxSpecialty.TabIndex = 12;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Font = new Font("Arial", 16F, FontStyle.Regular, GraphicsUnit.Point);
+            label1.Location = new Point(117, 319);
+            label1.Name = "label1";
+            label1.Size = new Size(175, 36);
+            label1.TabIndex = 11;
+            label1.Text = "Specialties:";
+            // 
             // btnSubmit
             // 
             btnSubmit.BackColor = Color.DarkOliveGreen;
             btnSubmit.Font = new Font("Arial", 14F, FontStyle.Regular, GraphicsUnit.Point);
             btnSubmit.ForeColor = SystemColors.ButtonFace;
-            btnSubmit.Location = new Point(233, 323);
+            btnSubmit.Location = new Point(237, 393);
             btnSubmit.Name = "btnSubmit";
             btnSubmit.Size = new Size(200, 60);
             btnSubmit.TabIndex = 10;
@@ -354,5 +391,8 @@ namespace DesktopApp.Forms
         private Button btnEdit;
         private Button btnActivate;
         private Button btnRemove;
+        private ComboBox cbxSpecialty;
+        private Label label1;
+        private Button btnAdd;
     }
 }

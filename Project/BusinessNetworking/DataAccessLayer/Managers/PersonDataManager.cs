@@ -8,6 +8,8 @@ using BusinessLogicLayer.Models;
 using BusinessLogicLayer.Common;
 using BusinessLogicLayer.Managers;
 using System.Data;
+using System.Transactions;
+using System.Data.Common;
 
 namespace DataAccessLayer.Managers
 {
@@ -18,24 +20,6 @@ namespace DataAccessLayer.Managers
         public PersonDataManager(IMeetingDataAccess meetingDataAccess)
         {
             this.meetingDataAccess = meetingDataAccess;
-        }
-
-        private void ExecuteQuery(Action<SqlConnection> action)
-        {
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
-                action(connection);
-            }
-        }
-
-        private void ExecuteNonQuery(Action<SqlConnection> action)
-        {
-            using (SqlConnection connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
-                action(connection);
-            }
         }
 
         public void AddPerson(User user)
@@ -74,6 +58,17 @@ namespace DataAccessLayer.Managers
                             command.Parameters.AddWithValue("@PersonId", userId);
                             command.Parameters.AddWithValue("@Rating", mentor.Rating);
                             command.ExecuteNonQuery();
+                        }
+
+                        string specialtyQuery = "INSERT INTO MentorSpecialty (MentorId, SpecialtyId) VALUES (@MentorId, @SpecialtyId)";
+                        foreach (var specialty in mentor.Specialties)
+                        {
+                            using (SqlCommand command = new SqlCommand(specialtyQuery, connection))
+                            {
+                                command.Parameters.AddWithValue("@MentorId", userId);
+                                command.Parameters.AddWithValue("@SpecialtyId", specialty);
+                                command.ExecuteNonQuery();
+                            }
                         }
                     }
                     else if (user is Mentee)
@@ -114,6 +109,13 @@ namespace DataAccessLayer.Managers
                     switch (user.Role)
                     {
                         case Role.Mentor:
+                            string deleteMentorSpecialtiesQuery = "DELETE FROM MentorSpecialty WHERE MentorId IN (SELECT Id FROM Person WHERE Email = @Email)";
+                            using (SqlCommand command = new SqlCommand(deleteMentorSpecialtiesQuery, connection))
+                            {
+                                command.Parameters.AddWithValue("@Email", user.Email);
+                                command.ExecuteNonQuery();
+                            }
+
                             roleSpecificQuery = "DELETE FROM Mentor WHERE PersonId IN (SELECT Id FROM Person WHERE Email = @Email)";
                             break;
                         case Role.Mentee:
@@ -169,9 +171,10 @@ namespace DataAccessLayer.Managers
 
                     case Role.Mentor:
                         float rating = role == Role.Mentor && !reader.IsDBNull(reader.GetOrdinal("Rating"))
-                                       ? (float)reader.GetDouble(reader.GetOrdinal("Rating"))
-                                       : 0f;
-                        return new Mentor(id, firstName, lastName, email, role, isActive, rating, imagePath);
+                                        ? (float)reader.GetDouble(reader.GetOrdinal("Rating"))
+                                        : 0f;
+                        var specialties = GetMentorSpecialties(reader.GetInt32(reader.GetOrdinal("Id")));
+                        return new Mentor(id, firstName, lastName, email, role, isActive, rating, specialties, imagePath);
 
                     case Role.Mentee:
                         return new Mentee(id, firstName, lastName, email, role, isActive, imagePath);
@@ -191,11 +194,13 @@ namespace DataAccessLayer.Managers
             List<IPerson> persons = new List<IPerson>();
             try
             {
-                ExecuteQuery(connection =>
+                using (SqlConnection connection = new SqlConnection(connectionString))
                 {
+                    connection.Open();
+
                     string query = role == Role.Mentor
-               ? "SELECT p.*, m.Rating FROM Person p LEFT JOIN Mentor m ON p.Id = m.PersonId WHERE p.Role = @Role"
-               : "SELECT * FROM Person WHERE Role = @Role";
+                        ? "SELECT p.*, m.Rating FROM Person p LEFT JOIN Mentor m ON p.Id = m.PersonId WHERE p.Role = @Role"
+                        : "SELECT * FROM Person WHERE Role = @Role";
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
                         command.Parameters.AddWithValue("@Role", role.ToString());
@@ -209,7 +214,7 @@ namespace DataAccessLayer.Managers
                             }
                         }
                     }
-                });
+                }
                 return persons;
             }
             catch (Exception ex)
@@ -241,13 +246,14 @@ namespace DataAccessLayer.Managers
             IPerson? resultPerson = null;
             try
             {
-                ExecuteQuery(connection =>
+                using (SqlConnection connection = new SqlConnection(connectionString))
                 {
+                    connection.Open();
                     string query = @"
-            SELECT p.Id, p.FirstName, p.LastName, p.Email, p.Role, p.IsActive, p.Image, m.Rating 
-            FROM Person p
-            LEFT JOIN Mentor m ON p.Id = m.PersonId
-            WHERE p.Email = @Email";
+                    SELECT p.Id, p.FirstName, p.LastName, p.Email, p.Role, p.IsActive, p.Image, m.Rating 
+                    FROM Person p
+                    LEFT JOIN Mentor m ON p.Id = m.PersonId
+                    WHERE p.Email = @Email";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -262,7 +268,7 @@ namespace DataAccessLayer.Managers
                             }
                         }
                     }
-                });
+                }
                 return resultPerson;
             }
             catch (Exception ex)
@@ -304,7 +310,8 @@ namespace DataAccessLayer.Managers
                         {
                             case Role.Mentor:
                                 float rating = reader.IsDBNull(reader.GetOrdinal("MentorRating")) ? 0f : (float)reader.GetDouble(reader.GetOrdinal("MentorRating"));
-                                Mentor mentor = new Mentor(id, firstName, lastName, email, role, isActive, rating, image);
+                                var specialties = GetMentorSpecialties(reader.GetInt32(reader.GetOrdinal("Id")));
+                                Mentor mentor = new Mentor(id, firstName, lastName, email, role, isActive, rating, specialties, image);
                                 persons.Add(mentor);
                                 break;
                             case Role.Mentee:
@@ -339,37 +346,64 @@ namespace DataAccessLayer.Managers
         {
             try
             {
-                string query = @"
-            UPDATE Person SET
-            FirstName = @newFirstName,
-            LastName = @newLastName,
-            Email = @newEmail,
-            PasswordHash = @newPasswordHash,
-            PasswordSalt = @newPasswordSalt,
-            Role = @newRole
-            WHERE Id = @Id";
-
                 using (var connection = new SqlConnection(connectionString))
                 {
                     connection.Open();
 
-                    using (SqlCommand command = new SqlCommand(query, connection))
+                    using (var transaction = connection.BeginTransaction())
                     {
-                        command.Parameters.AddWithValue("@newFirstName", updatedUser.FirstName);
-                        command.Parameters.AddWithValue("@newLastName", updatedUser.LastName);
-                        command.Parameters.AddWithValue("@newEmail", updatedUser.Email);
+                        string personQuery = @"
+                UPDATE Person SET
+                FirstName = @newFirstName,
+                LastName = @newLastName,
+                Email = @newEmail,
+                PasswordHash = @newPasswordHash,
+                PasswordSalt = @newPasswordSalt,
+                Role = @newRole
+                WHERE Id = @Id";
 
-                        var passwordHashBytes = Convert.FromBase64String(updatedUser.PasswordHash);
-                        var passwordSaltBytes = Convert.FromBase64String(updatedUser.PasswordSalt);
+                        using (SqlCommand command = new SqlCommand(personQuery, connection, transaction))
+                        {
+                            command.Parameters.AddWithValue("@newFirstName", updatedUser.FirstName);
+                            command.Parameters.AddWithValue("@newLastName", updatedUser.LastName);
+                            command.Parameters.AddWithValue("@newEmail", updatedUser.Email);
 
-                        command.Parameters.AddWithValue("@newPasswordHash", passwordHashBytes);
-                        command.Parameters.AddWithValue("@newPasswordSalt", passwordSaltBytes);
-                        command.Parameters.AddWithValue("@newRole", updatedUser.Role.ToString());
-                        command.Parameters.AddWithValue("@Id", oldUser.Id);
+                            var passwordHashBytes = Convert.FromBase64String(updatedUser.PasswordHash);
+                            var passwordSaltBytes = Convert.FromBase64String(updatedUser.PasswordSalt);
 
-                        int rowsAffected = command.ExecuteNonQuery();
-                        return rowsAffected > 0;
+                            command.Parameters.AddWithValue("@newPasswordHash", passwordHashBytes);
+                            command.Parameters.AddWithValue("@newPasswordSalt", passwordSaltBytes);
+                            command.Parameters.AddWithValue("@newRole", updatedUser.Role.ToString());
+                            command.Parameters.AddWithValue("@Id", oldUser.Id);
+
+                            command.ExecuteNonQuery();
+                        }
+
+                        if (updatedUser is Mentor updatedMentor)
+                        {
+                            string deleteSpecialtiesQuery = "DELETE FROM MentorSpecialty WHERE MentorId = @MentorId";
+                            using (SqlCommand deleteCommand = new SqlCommand(deleteSpecialtiesQuery, connection, transaction))
+                            {
+                                deleteCommand.Parameters.AddWithValue("@MentorId", oldUser.Id);
+                                deleteCommand.ExecuteNonQuery();
+                            }
+
+                            foreach (var specialty in updatedMentor.Specialties)
+                            {
+                                string insertSpecialtyQuery = "INSERT INTO MentorSpecialty (MentorId, SpecialtyId) VALUES (@MentorId, @SpecialtyId)";
+                                using (SqlCommand insertCommand = new SqlCommand(insertSpecialtyQuery, connection, transaction))
+                                {
+                                    insertCommand.Parameters.AddWithValue("@MentorId", oldUser.Id);
+                                    insertCommand.Parameters.AddWithValue("@SpecialtyId", (int)specialty);
+                                    insertCommand.ExecuteNonQuery();
+                                }
+                            }
+                        }
+
+                        transaction.Commit();
                     }
+
+                    return true;
                 }
             }
             catch (Exception ex)
@@ -409,6 +443,41 @@ namespace DataAccessLayer.Managers
             {
                 throw new Exception($"Database error occurred while updating the mentor's rating: {ex.Message}", ex);
             }
+        }
+
+        private List<Specialty> GetMentorSpecialties(int mentorId)
+        {
+            var specialties = new List<Specialty>();
+            string query = @"
+        SELECT s.Name 
+        FROM MentorSpecialty ms
+        JOIN Specialty s ON ms.SpecialtyId = s.Id
+        WHERE ms.MentorId = @MentorId";
+
+            using (var conn = new SqlConnection(connectionString))
+            {
+                using (var cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@MentorId", mentorId);
+                    conn.Open();
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var specialtyName = reader.GetString(0);
+                            if (Enum.TryParse<Specialty>(specialtyName, out var specialty))
+                            {
+                                specialties.Add(specialty);
+                            }
+                            else
+                            {
+                                throw new Exception("Database error occured while extracting the mentor's specialties.");
+                            }
+                        }
+                    }
+                }
+            }
+            return specialties;
         }
     }
 }

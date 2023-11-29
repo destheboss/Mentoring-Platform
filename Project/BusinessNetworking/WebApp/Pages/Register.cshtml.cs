@@ -35,6 +35,9 @@ namespace WebApp.Pages
         public Role Role { get; set; }
 
         [BindProperty]
+        public List<Specialty> Specialties { get; set; }
+
+        [BindProperty]
         public IFormFile Image { get; set; }
 
         public RegisterModel(UserManager userManager, IWebHostEnvironment environment)
@@ -78,7 +81,7 @@ namespace WebApp.Pages
 
             try
             {
-                User newUser = UserFactory.CreateUser(FirstName, LastName, Email, Password, Role, filePath);
+                User newUser = UserFactory.CreateUser(FirstName, LastName, Email, Password, Role, Specialties, filePath);
                 userManager.AddPerson(newUser);
 
                 return RedirectToPage("/Login");

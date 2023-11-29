@@ -28,7 +28,6 @@ builder.Services.AddScoped<BusinessLogicLayer.Interfaces.IPersonDataAccess, Data
 builder.Services.AddScoped<AuthenticationManager>();
 builder.Services.AddScoped<HashingManager>();
 builder.Services.AddScoped<UserManager>();
-builder.Services.AddScoped<PasswordStrengthChecker>();
 builder.Services.AddScoped<BusinessLogicLayer.Interfaces.IMeetingDataAccess, DataAccessLayer.Managers.MeetingDataManager>();
 
 var app = builder.Build();

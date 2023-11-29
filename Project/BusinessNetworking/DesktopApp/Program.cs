@@ -16,11 +16,10 @@ namespace DesktopApp.Forms
         static void Main()
         {
             HashingManager hashingManager = new HashingManager();
-            PasswordStrengthChecker passwordStrengthChecker = new PasswordStrengthChecker();
             IMeetingDataAccess meetingData = new MeetingDataManager();
             IPersonDataAccess personData = new PersonDataManager(meetingData);
             IAuthenticationDataAccess authenticationDataAccess = new AuthenticationDataManager();
-            UserManager userManager = new UserManager(personData, meetingData, hashingManager, passwordStrengthChecker);
+            UserManager userManager = new UserManager(personData, meetingData, hashingManager);
             AuthenticationManager authenticationManager = new AuthenticationManager(authenticationDataAccess, hashingManager, userManager);
             MeetingManager meetingManager = new MeetingManager(meetingData);
             // To customize application configuration such as set high DPI settings or default font,

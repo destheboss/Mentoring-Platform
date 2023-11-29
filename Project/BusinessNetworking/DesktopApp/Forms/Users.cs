@@ -25,6 +25,7 @@ namespace DesktopApp.Forms
         private RatingManager ratingManager;
         private IUserActionsDataAccess data = new UserActionsDataManager();
         private Role? selectedRole = null;
+        private List<Specialty> specialties = new List<Specialty>();
         public Users(IPerson admin, MeetingManager meetingManager, UserManager userManager, Main mainForm)
         {
             this.loggedAdmin = admin;
@@ -50,6 +51,11 @@ namespace DesktopApp.Forms
             foreach (Role role in Enum.GetValues(typeof(Role)))
             {
                 cbxRoles.Items.Add(role);
+            }
+
+            foreach (Specialty specialty in Enum.GetValues(typeof(Specialty)))
+            {
+                cbxSpecialty.Items.Add(specialty);
             }
 
             List<object> searchItems = new List<object> { "All roles" };
@@ -124,7 +130,7 @@ namespace DesktopApp.Forms
                     person = new Admin(firstName, lastName, email, password, role);
                     break;
                 case Role.Mentor:
-                    person = new Mentor(firstName, lastName, email, password, role);
+                    person = new Mentor(firstName, lastName, email, password, role, specialties);
                     break;
                 case Role.Mentee:
                     person = new Mentee(firstName, lastName, email, password, role);
@@ -142,6 +148,7 @@ namespace DesktopApp.Forms
             {
                 userManager.AddPerson(user);
                 MessageBox.Show("User successfully created!");
+                specialties.Clear();
             }
             catch (Exception ex)
             {
@@ -300,9 +307,9 @@ namespace DesktopApp.Forms
 
             try
             {
-                if (selectedPerson is Admin admin)
+                if (selectedPerson.Email == loggedAdmin.Email)
                 {
-                    MessageBox.Show("The selected person cannot be removed because it is an Admin.");
+                    MessageBox.Show("Cannot remove yourself, while using the app.");
                 }
                 else
                 {
@@ -315,6 +322,13 @@ namespace DesktopApp.Forms
             {
                 MessageBox.Show(ex.Message);
             }
+        }
+
+        private void btnAdd_Click(object sender, EventArgs e)
+        {
+            Specialty newSpecialty = (Specialty)cbxSpecialty.SelectedItem;
+
+            specialties.Add(newSpecialty);
         }
     }
 }

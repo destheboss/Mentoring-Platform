@@ -53,7 +53,7 @@ namespace BusinessLogicLayer.Common
         public string Email
         {
             get => this.email;
-            private set
+            set
             {
                 if (string.IsNullOrEmpty(value))
                 {

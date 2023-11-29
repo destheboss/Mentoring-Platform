@@ -10,6 +10,7 @@ namespace BusinessLogicLayer.Managers
     {
         private readonly UserManager _userManager;
         private readonly MeetingManager _meetingManager;
+        private const int TopMentorsCount = 100;
 
         public RatingManager(UserManager userManager, MeetingManager meetingManager)
         {
@@ -61,7 +62,8 @@ namespace BusinessLogicLayer.Managers
             allMentors.Sort((x, y) => y.Rating.CompareTo(x.Rating));
 
             var topRatedMentors = new List<Mentor>();
-            for (int i = 0; i < 10 && i < allMentors.Count; i++)
+            // linear 
+            for (int i = 0; i < TopMentorsCount && i < allMentors.Count; i++)
             {
                 topRatedMentors.Add(allMentors[i]);
             }

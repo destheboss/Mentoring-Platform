@@ -1,11 +1,12 @@
-﻿using System;
+﻿using BusinessLogicLayer.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessLogicLayer.Managers
+namespace BusinessLogicLayer.Strategies
 {
-    public class PasswordStrengthChecker
+    public class AdminPasswordStrengthStrategy : IPasswordStrengthStrategy
     {
         public bool IsPasswordStrong(string password)
         {

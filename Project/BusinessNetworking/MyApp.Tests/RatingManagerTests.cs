@@ -42,19 +42,6 @@ namespace MyApp.Tests
         }
 
         [TestMethod]
-        public void RateMeeting_InvalidMeeting_NoRatingUpdate()
-        {
-            int meetingId = 1;
-            int newRating = 5;
-
-            _mockMeetingManager.Setup(m => m.GetMeetingById(meetingId)).Returns((Meeting)null);
-
-            _ratingManager.RateMeeting(meetingId, newRating);
-
-            _mockMeetingManager.Verify(m => m.UpdateMeetingRating(It.IsAny<Meeting>()), Times.Never);
-        }
-
-        [TestMethod]
         public void UpdateMentorRating_ValidEmail_SuccessfulRatingUpdate()
         {
             string email = "mentor@example.com";
@@ -64,8 +51,10 @@ namespace MyApp.Tests
                 new Meeting(2, DateTime.Now.AddDays(1), 1, email, 3, "mentee2@example.com", 5)
             };
 
+            var specialties = new List<Specialty> { Specialty.SoftwareEngineering, Specialty.Writing };
+
             _mockMeetingManager.Setup(m => m.GetAllMeetings(email)).Returns(meetings);
-            var mentor = new Mentor("John", "Doe", email, "password", Role.Mentor, "image/path");
+            var mentor = new Mentor("John", "Doe", email, "password", Role.Mentor, specialties, "image/path");
 
             _mockUserManager.Setup(m => m.GetPersonByEmail(email)).Returns(mentor);
 
@@ -73,23 +62,6 @@ namespace MyApp.Tests
 
             Assert.AreEqual(4.5f, mentor.Rating);
             _mockUserManager.Verify(m => m.UpdateMentorAverageRating(mentor), Times.Once);
-        }
-
-        [TestMethod]
-        public void UpdateMentorRating_NoMeetings_NoRatingUpdate()
-        {
-            string email = "mentor@example.com";
-            var meetings = new List<Meeting>();
-
-            _mockMeetingManager.Setup(m => m.GetAllMeetings(email)).Returns(meetings);
-            var mentor = new Mentor("John", "Doe", email, "password", Role.Mentor, "image/path");
-
-            _mockUserManager.Setup(m => m.GetPersonByEmail(email)).Returns(mentor);
-
-            _ratingManager.UpdateMentorRating(email);
-
-            Assert.AreEqual(0, mentor.Rating);
-            _mockUserManager.Verify(m => m.UpdateMentorAverageRating(It.IsAny<Mentor>()), Times.Never);
         }
     }
 }

@@ -29,6 +29,12 @@
         private void InitializeComponent()
         {
             usersPanel = new Panel();
+            btnAdd = new Button();
+            cbxSpecialty = new ComboBox();
+            lblMentorSpecs = new Label();
+            lblSpecialty = new Label();
+            tbxNewEmail = new TextBox();
+            lblNewEmail = new Label();
             btnCancel = new Button();
             btnConfirm = new Button();
             tbxNewLastName = new TextBox();
@@ -39,14 +45,18 @@
             cbxRoles = new ComboBox();
             lblNewPassword = new Label();
             lblNewFirstName = new Label();
-            lblNewEmail = new Label();
-            tbxNewEmail = new TextBox();
+            btnClearSpecialties = new Button();
             usersPanel.SuspendLayout();
             SuspendLayout();
             // 
             // usersPanel
             // 
             usersPanel.BackColor = SystemColors.Control;
+            usersPanel.Controls.Add(btnClearSpecialties);
+            usersPanel.Controls.Add(btnAdd);
+            usersPanel.Controls.Add(cbxSpecialty);
+            usersPanel.Controls.Add(lblMentorSpecs);
+            usersPanel.Controls.Add(lblSpecialty);
             usersPanel.Controls.Add(tbxNewEmail);
             usersPanel.Controls.Add(lblNewEmail);
             usersPanel.Controls.Add(btnCancel);
@@ -63,6 +73,61 @@
             usersPanel.Name = "usersPanel";
             usersPanel.Size = new Size(813, 430);
             usersPanel.TabIndex = 0;
+            // 
+            // btnAdd
+            // 
+            btnAdd.BackColor = Color.DarkOliveGreen;
+            btnAdd.ForeColor = SystemColors.ButtonFace;
+            btnAdd.Location = new Point(568, 126);
+            btnAdd.Name = "btnAdd";
+            btnAdd.Size = new Size(100, 38);
+            btnAdd.TabIndex = 17;
+            btnAdd.Text = "Add";
+            btnAdd.UseVisualStyleBackColor = false;
+            btnAdd.Click += btnAdd_Click;
+            // 
+            // cbxSpecialty
+            // 
+            cbxSpecialty.DropDownStyle = ComboBoxStyle.DropDownList;
+            cbxSpecialty.FormattingEnabled = true;
+            cbxSpecialty.Location = new Point(590, 87);
+            cbxSpecialty.Name = "cbxSpecialty";
+            cbxSpecialty.Size = new Size(150, 33);
+            cbxSpecialty.TabIndex = 16;
+            // 
+            // lblMentorSpecs
+            // 
+            lblMentorSpecs.AutoSize = true;
+            lblMentorSpecs.Location = new Point(489, 32);
+            lblMentorSpecs.Name = "lblMentorSpecs";
+            lblMentorSpecs.Size = new Size(137, 25);
+            lblMentorSpecs.TabIndex = 15;
+            lblMentorSpecs.Text = "Mentor specific:";
+            // 
+            // lblSpecialty
+            // 
+            lblSpecialty.AutoSize = true;
+            lblSpecialty.Location = new Point(489, 90);
+            lblSpecialty.Name = "lblSpecialty";
+            lblSpecialty.Size = new Size(86, 25);
+            lblSpecialty.TabIndex = 14;
+            lblSpecialty.Text = "Specialty:";
+            // 
+            // tbxNewEmail
+            // 
+            tbxNewEmail.Location = new Point(202, 154);
+            tbxNewEmail.Name = "tbxNewEmail";
+            tbxNewEmail.Size = new Size(150, 31);
+            tbxNewEmail.TabIndex = 12;
+            // 
+            // lblNewEmail
+            // 
+            lblNewEmail.AutoSize = true;
+            lblNewEmail.Location = new Point(57, 154);
+            lblNewEmail.Name = "lblNewEmail";
+            lblNewEmail.Size = new Size(98, 25);
+            lblNewEmail.TabIndex = 11;
+            lblNewEmail.Text = "New Email:";
             // 
             // btnCancel
             // 
@@ -154,21 +219,17 @@
             lblNewFirstName.TabIndex = 0;
             lblNewFirstName.Text = "New First Name:";
             // 
-            // lblNewEmail
+            // btnClearSpecialties
             // 
-            lblNewEmail.AutoSize = true;
-            lblNewEmail.Location = new Point(57, 154);
-            lblNewEmail.Name = "lblNewEmail";
-            lblNewEmail.Size = new Size(98, 25);
-            lblNewEmail.TabIndex = 11;
-            lblNewEmail.Text = "New Email:";
-            // 
-            // tbxNewEmail
-            // 
-            tbxNewEmail.Location = new Point(202, 154);
-            tbxNewEmail.Name = "tbxNewEmail";
-            tbxNewEmail.Size = new Size(150, 31);
-            tbxNewEmail.TabIndex = 12;
+            btnClearSpecialties.BackColor = Color.Crimson;
+            btnClearSpecialties.ForeColor = SystemColors.ButtonFace;
+            btnClearSpecialties.Location = new Point(674, 126);
+            btnClearSpecialties.Name = "btnClearSpecialties";
+            btnClearSpecialties.Size = new Size(100, 38);
+            btnClearSpecialties.TabIndex = 18;
+            btnClearSpecialties.Text = "Clear All";
+            btnClearSpecialties.UseVisualStyleBackColor = false;
+            btnClearSpecialties.Click += btnClearSpecialties_Click;
             // 
             // UsersEdit
             // 
@@ -200,5 +261,10 @@
         private ComboBox cbxRoles;
         private Label lblNewEmail;
         private TextBox tbxNewEmail;
+        private ComboBox cbxSpecialty;
+        private Label lblMentorSpecs;
+        private Label lblSpecialty;
+        private Button btnAdd;
+        private Button btnClearSpecialties;
     }
 }

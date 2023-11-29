@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using BusinessLogicLayer.Common;
 using BusinessLogicLayer.Interfaces;
+using System.Data.SqlClient;
 
 namespace DesktopApp.Forms
 {
