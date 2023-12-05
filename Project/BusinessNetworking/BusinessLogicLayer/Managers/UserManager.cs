@@ -15,9 +15,9 @@ namespace BusinessLogicLayer.Managers
     {
         private readonly IPersonDataAccess data;
         private readonly IMeetingDataAccess meetingData;
-        private readonly HashingManager hashingManager;
+        private readonly IHashingManager hashingManager;
 
-        public UserManager(IPersonDataAccess data, IMeetingDataAccess meetingData, HashingManager hashingManager)
+        public UserManager(IPersonDataAccess data, IMeetingDataAccess meetingData, IHashingManager hashingManager)
         {
             this.data = data;
             this.meetingData = meetingData;

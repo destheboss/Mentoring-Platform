@@ -1,4 +1,5 @@
 ﻿@page
+@using BusinessLogicLayer.Models;
 @model WebApp.Pages.RegisterModel
 @{
     ViewData["Title"] = "Register";
@@ -36,11 +37,21 @@
             <input asp-for="ConfirmPassword" type="password" placeholder="Confirm Password" required />
             <span asp-validation-for="ConfirmPassword"></span>
 
-            <select asp-for="Role">
-                <option value="Mentor">Mentor</option>
+            <select asp-for="Role" id="roleSelect" onchange="toggleSpecialtiesDropdown()">
                 <option value="Mentee">Mentee</option>
+                <option value="Mentor">Mentor</option>
             </select>
             <span asp-validation-for="Role"></span>
+
+            <select id="specialtiesSelect" disabled>
+                @foreach (var specialty in Enum.GetValues(typeof(Specialty)))
+                {
+                    <option value="@specialty">@specialty</option>
+                }
+            </select>
+            <button type="button" id="addSpecialtyButton" onclick="addSpecialty()">Add Specialty</button>
+            <ul id="selectedSpecialtiesList"></ul>
+            <input type="hidden" id="specialtiesHidden" asp-for="SpecialtiesString" />
 
             <label for="Image">Profile Image:</label>
             <input type="file" asp-for="Image" accept="image/*" />
@@ -53,4 +64,8 @@
     <footer>
         <p>&copy; 2023 Business Networking. All rights reserved.</p>
     </footer>
+
+    @section Scripts {
+        <script src="~/js/register.js"></script>
+    }
 </body>

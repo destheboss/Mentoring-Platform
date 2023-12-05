@@ -38,6 +38,9 @@ namespace WebApp.Pages
         public List<Specialty> Specialties { get; set; }
 
         [BindProperty]
+        public string SpecialtiesString { get; set; }
+
+        [BindProperty]
         public IFormFile Image { get; set; }
 
         public RegisterModel(UserManager userManager, IWebHostEnvironment environment)
@@ -81,7 +84,16 @@ namespace WebApp.Pages
 
             try
             {
-                User newUser = UserFactory.CreateUser(FirstName, LastName, Email, Password, Role, Specialties, filePath);
+                List<Specialty> selectedSpecialties = new List<Specialty>();
+                if (!string.IsNullOrEmpty(SpecialtiesString))
+                {
+                    selectedSpecialties = SpecialtiesString
+                        .Split(',')
+                        .Select(s => (Specialty)Enum.Parse(typeof(Specialty), s))
+                        .ToList();
+                }
+
+                User newUser = UserFactory.CreateUser(FirstName, LastName, Email, Password, Role, selectedSpecialties, filePath);
                 userManager.AddPerson(newUser);
 
                 return RedirectToPage("/Login");

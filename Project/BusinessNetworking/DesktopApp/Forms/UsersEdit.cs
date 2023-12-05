@@ -31,11 +31,6 @@ namespace DesktopApp.Forms
         {
             this.WindowState = usersForm.WindowState;
 
-            foreach (Role role in Enum.GetValues(typeof(Role)))
-            {
-                cbxRoles.Items.Add(role);
-            }
-
             foreach (Specialty specialty in Enum.GetValues(typeof(Specialty)))
             {
                 cbxSpecialty.Items.Add(specialty);
@@ -44,7 +39,6 @@ namespace DesktopApp.Forms
             tbxNewName.Text = selectedUser.FirstName;
             tbxNewLastName.Text = selectedUser.LastName;
             tbxNewEmail.Text = selectedUser.Email;
-            cbxRoles.SelectedItem = selectedUser.Role;
 
             if (selectedUser is Mentor mentor)
             {
@@ -63,20 +57,19 @@ namespace DesktopApp.Forms
                 string newLastName = tbxNewLastName.Text;
                 string newEmail = tbxNewEmail.Text;
                 string newPassword = tbxNewPassword.Text;
-                Role newRole = (Role)cbxRoles.SelectedItem;
 
                 User updatedUser;
 
-                switch (newRole)
+                switch (selectedUser.Role)
                 {
                     case Role.Admin:
-                        updatedUser = new Admin(newFirstName, newLastName, newEmail, newPassword, newRole);
+                        updatedUser = new Admin(newFirstName, newLastName, newEmail, newPassword, selectedUser.Role);
                         break;
                     case Role.Mentor:
-                        updatedUser = new Mentor(newFirstName, newLastName, newEmail, newPassword, newRole, specialties);
+                        updatedUser = new Mentor(newFirstName, newLastName, newEmail, newPassword, selectedUser.Role, specialties);
                         break;
                     case Role.Mentee:
-                        updatedUser = new Mentee(newFirstName, newLastName, newEmail, newPassword, newRole);
+                        updatedUser = new Mentee(newFirstName, newLastName, newEmail, newPassword, selectedUser.Role);
                         break;
                     default:
                         throw new InvalidOperationException("Unsupported role type.");

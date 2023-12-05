@@ -1,4 +1,6 @@
 using BusinessLogicLayer.Managers;
+using BusinessLogicLayer.Interfaces;
+using DataAccessLayer.Managers;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -23,12 +25,12 @@ builder.Services.AddRazorPages();
 
 // Register UserManager service.
 // Register IPersonDataAccess and its implementation.
-builder.Services.AddScoped<BusinessLogicLayer.Interfaces.IAuthenticationDataAccess, DataAccessLayer.Managers.AuthenticationDataManager>();
-builder.Services.AddScoped<BusinessLogicLayer.Interfaces.IPersonDataAccess, DataAccessLayer.Managers.PersonDataManager>();
+builder.Services.AddScoped<IAuthenticationDataAccess, AuthenticationDataManager>();
+builder.Services.AddScoped<IPersonDataAccess, PersonDataManager>();
+builder.Services.AddScoped<IMeetingDataAccess, MeetingDataManager>();
+builder.Services.AddScoped<IHashingManager, HashingManager>();
 builder.Services.AddScoped<AuthenticationManager>();
-builder.Services.AddScoped<HashingManager>();
 builder.Services.AddScoped<UserManager>();
-builder.Services.AddScoped<BusinessLogicLayer.Interfaces.IMeetingDataAccess, DataAccessLayer.Managers.MeetingDataManager>();
 
 var app = builder.Build();
 

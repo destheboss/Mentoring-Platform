@@ -10,10 +10,10 @@ namespace BusinessLogicLayer.Managers
     public class AuthenticationManager
     {
         private readonly IAuthenticationDataAccess data;
-        private readonly HashingManager hashingManager;
+        private readonly IHashingManager hashingManager;
         private readonly UserManager userManager;
 
-        public AuthenticationManager(IAuthenticationDataAccess data, HashingManager hashingManager, UserManager userManager)
+        public AuthenticationManager(IAuthenticationDataAccess data, IHashingManager hashingManager, UserManager userManager)
         {
             this.data = data;
             this.hashingManager = hashingManager;

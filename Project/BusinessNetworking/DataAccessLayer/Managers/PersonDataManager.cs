@@ -445,7 +445,7 @@ namespace DataAccessLayer.Managers
             }
         }
 
-        private List<Specialty> GetMentorSpecialties(int mentorId)
+        public List<Specialty> GetMentorSpecialties(int mentorId)
         {
             var specialties = new List<Specialty>();
             string query = @"

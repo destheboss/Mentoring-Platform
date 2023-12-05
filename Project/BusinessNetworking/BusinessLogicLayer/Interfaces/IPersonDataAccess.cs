@@ -18,5 +18,6 @@ namespace BusinessLogicLayer.Interfaces
         List<IPerson> GetAllPersons();
         bool UpdatePersonInfo(User currentUser, User updatedUser);
         void UpdateMentorAverageRating(Mentor mentor);
+        List<Specialty> GetMentorSpecialties(int mentorId);
     }
 }

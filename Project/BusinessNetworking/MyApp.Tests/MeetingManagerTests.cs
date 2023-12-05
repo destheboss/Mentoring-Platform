@@ -38,5 +38,21 @@ namespace MyApp.Tests
 
             meetingManager.UpdateMeetingRating(meeting);
         }
+
+        [TestMethod]
+        public void UpdateMeetingRating_ValidRating_UpdatesSuccessfully()
+        {
+            var meeting = new Meeting(DateTime.Now, 1, "mentor@example.com", 2, "mentee@example.com");
+            const int validRating = 5;
+            meeting.Rating = validRating;
+
+            mockMeetingDataAccess.Setup(m => m.UpdateMeetingRating(It.IsAny<Meeting>()))
+                                 .Returns(true);
+
+            var result = meetingManager.UpdateMeetingRating(meeting);
+
+            Assert.IsTrue(result);
+            mockMeetingDataAccess.Verify(m => m.UpdateMeetingRating(It.Is<Meeting>(mt => mt.Rating == validRating)), Times.Once);
+        }
     }
 }

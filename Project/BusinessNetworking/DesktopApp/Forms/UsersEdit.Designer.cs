@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             usersPanel = new Panel();
+            btnClearSpecialties = new Button();
             btnAdd = new Button();
             cbxSpecialty = new ComboBox();
             lblMentorSpecs = new Label();
@@ -41,11 +42,8 @@
             lblNewLastName = new Label();
             tbxNewName = new TextBox();
             tbxNewPassword = new TextBox();
-            lblNewRole = new Label();
-            cbxRoles = new ComboBox();
             lblNewPassword = new Label();
             lblNewFirstName = new Label();
-            btnClearSpecialties = new Button();
             usersPanel.SuspendLayout();
             SuspendLayout();
             // 
@@ -65,14 +63,24 @@
             usersPanel.Controls.Add(lblNewLastName);
             usersPanel.Controls.Add(tbxNewName);
             usersPanel.Controls.Add(tbxNewPassword);
-            usersPanel.Controls.Add(lblNewRole);
-            usersPanel.Controls.Add(cbxRoles);
             usersPanel.Controls.Add(lblNewPassword);
             usersPanel.Controls.Add(lblNewFirstName);
             usersPanel.Location = new Point(119, 67);
             usersPanel.Name = "usersPanel";
             usersPanel.Size = new Size(813, 430);
             usersPanel.TabIndex = 0;
+            // 
+            // btnClearSpecialties
+            // 
+            btnClearSpecialties.BackColor = Color.Crimson;
+            btnClearSpecialties.ForeColor = SystemColors.ButtonFace;
+            btnClearSpecialties.Location = new Point(674, 126);
+            btnClearSpecialties.Name = "btnClearSpecialties";
+            btnClearSpecialties.Size = new Size(100, 38);
+            btnClearSpecialties.TabIndex = 18;
+            btnClearSpecialties.Text = "Clear All";
+            btnClearSpecialties.UseVisualStyleBackColor = false;
+            btnClearSpecialties.Click += btnClearSpecialties_Click;
             // 
             // btnAdd
             // 
@@ -183,24 +191,6 @@
             tbxNewPassword.Size = new Size(150, 31);
             tbxNewPassword.TabIndex = 5;
             // 
-            // lblNewRole
-            // 
-            lblNewRole.AutoSize = true;
-            lblNewRole.Location = new Point(57, 288);
-            lblNewRole.Name = "lblNewRole";
-            lblNewRole.Size = new Size(90, 25);
-            lblNewRole.TabIndex = 4;
-            lblNewRole.Text = "New Role:";
-            // 
-            // cbxRoles
-            // 
-            cbxRoles.DropDownStyle = ComboBoxStyle.DropDownList;
-            cbxRoles.FormattingEnabled = true;
-            cbxRoles.Location = new Point(202, 285);
-            cbxRoles.Name = "cbxRoles";
-            cbxRoles.Size = new Size(150, 33);
-            cbxRoles.TabIndex = 3;
-            // 
             // lblNewPassword
             // 
             lblNewPassword.AutoSize = true;
@@ -218,18 +208,6 @@
             lblNewFirstName.Size = new Size(141, 25);
             lblNewFirstName.TabIndex = 0;
             lblNewFirstName.Text = "New First Name:";
-            // 
-            // btnClearSpecialties
-            // 
-            btnClearSpecialties.BackColor = Color.Crimson;
-            btnClearSpecialties.ForeColor = SystemColors.ButtonFace;
-            btnClearSpecialties.Location = new Point(674, 126);
-            btnClearSpecialties.Name = "btnClearSpecialties";
-            btnClearSpecialties.Size = new Size(100, 38);
-            btnClearSpecialties.TabIndex = 18;
-            btnClearSpecialties.Text = "Clear All";
-            btnClearSpecialties.UseVisualStyleBackColor = false;
-            btnClearSpecialties.Click += btnClearSpecialties_Click;
             // 
             // UsersEdit
             // 
@@ -257,8 +235,6 @@
         private Label lblNewLastName;
         private TextBox tbxNewName;
         private TextBox tbxNewPassword;
-        private Label lblNewRole;
-        private ComboBox cbxRoles;
         private Label lblNewEmail;
         private TextBox tbxNewEmail;
         private ComboBox cbxSpecialty;

@@ -1,11 +1,9 @@
-﻿/* General styles */
-body {
+﻿body {
     background-image: url("https://media.licdn.com/dms/image/C4D12AQFvR6webwTsKw/article-cover_image-shrink_720_1280/0/1533823206296?e=2147483647&v=beta&t=wZN4Py-PYNTGQa6WCk1HVhivWC8SWcoIYFN1LdI1b9A");
     background-size: cover;
     font-family: Arial, sans-serif;
 }
 
-/* Header navigation */
 header {
     background-color: #333;
     color: white;
@@ -22,7 +20,6 @@ nav ul {
         margin-right: 20px;
     }
 
-/* Register container */
 .register-container {
     max-width: 400px;
     margin: auto;
@@ -44,7 +41,38 @@ nav ul {
         border-radius: 4px;
     }
 
-/* Footer */
+    .register-container select:disabled {
+        background-color: #eaeaea;
+        color: #a9a9a9;
+        filter: blur(1px);
+    }
+
+#addSpecialtyButton {
+    margin-bottom: 10px;
+}
+
+#selectedSpecialtiesList {
+    list-style-type: none;
+    padding: 0;
+}
+
+    #selectedSpecialtiesList li {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+        padding: 5px;
+        background-color: #f0f0f0;
+        border-radius: 4px;
+    }
+
+    #selectedSpecialtiesList button {
+        margin-left: 10px;
+        color: red;
+        border: none;
+        background: none;
+        cursor: pointer;
+    }
+
 footer {
     background-color: #333;
     color: white;

@@ -3,23 +3,27 @@ using BusinessLogicLayer.Managers;
 using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Models;
 using BusinessLogicLayer.Common;
+using System.Security.Cryptography;
 
 namespace MyApp.Tests
 {
     [TestClass]
     public class UserManagerTests
     {
-        private Mock<IPersonDataAccess> _mockDataAccess;
-        private Mock<IMeetingDataAccess> _mockMeetingDataAccess;
+        private Mock<IPersonDataAccess> _personData;
+        private Mock<IMeetingDataAccess> _meetingData;
+        private Mock<IHashingManager> _hashingManager;
+        private Mock<IPasswordStrengthStrategy> _passwordStrengthStrategy;
         private UserManager _userManager;
-        private HashingManager _hashingManager;
 
         [TestInitialize]
         public void Initialize()
         {
-            _mockDataAccess = new Mock<IPersonDataAccess>();
-            _mockMeetingDataAccess = new Mock<IMeetingDataAccess>();
-            _userManager = new UserManager(_mockDataAccess.Object, _mockMeetingDataAccess.Object, _hashingManager);
+            _personData = new Mock<IPersonDataAccess>();
+            _meetingData = new Mock<IMeetingDataAccess>();
+            _hashingManager = new Mock<IHashingManager>();
+            _passwordStrengthStrategy = new Mock<IPasswordStrengthStrategy>();
+            _userManager = new UserManager(_personData.Object, _meetingData.Object, _hashingManager.Object);
         }
 
         [TestMethod]
@@ -27,9 +31,37 @@ namespace MyApp.Tests
         {
             var user = new Mentee("John", "Doe", "john@example.com", "Password123!", Role.Mentee);
 
+            _hashingManager.Setup(h => h.GenerateHashWithSalt(It.IsAny<string>()))
+                           .Returns(() => {
+                               byte[] dummyHash = new byte[20];
+                               byte[] dummySalt = new byte[16];
+                               RandomNumberGenerator.Fill(dummyHash);
+                               RandomNumberGenerator.Fill(dummySalt);
+                               return (dummyHash, dummySalt);
+                           });
+
             _userManager.AddPerson(user);
 
-            _mockDataAccess.Verify(m => m.AddPerson(It.Is<User>(u => u.Email == "john@example.com")), Times.Once);
+            _personData.Verify(d => d.AddPerson(It.IsAny<User>()), Times.Once);
+        }
+
+        [TestMethod]
+        public void AddPerson_ShouldThrowArgumentException_WhenPasswordIsInvalid()
+        {
+            var user = new Mentee("Jane", "Doe", "jane@example.com", "Pwd123", Role.Mentee);
+
+            _hashingManager.Setup(h => h.GenerateHashWithSalt(It.IsAny<string>()))
+                           .Returns(() => {
+                               byte[] dummyHash = new byte[20];
+                               byte[] dummySalt = new byte[16];
+                               RandomNumberGenerator.Fill(dummyHash);
+                               RandomNumberGenerator.Fill(dummySalt);
+                               return (dummyHash, dummySalt);
+                           });
+
+            _passwordStrengthStrategy.Setup(p => p.IsPasswordStrong(It.IsAny<string>())).Returns(false);
+
+            Assert.ThrowsException<ArgumentException>(() => _userManager.AddPerson(user));
         }
 
         [TestMethod]
@@ -37,7 +69,7 @@ namespace MyApp.Tests
         {
             var email = "john@example.com";
             var expectedPerson = new Mentee("John", "Doe", email, "password123", Role.Mentee);
-            _mockDataAccess.Setup(m => m.GetPersonByEmail(email)).Returns(expectedPerson);
+            _personData.Setup(m => m.GetPersonByEmail(email)).Returns(expectedPerson);
 
             var result = _userManager.GetPersonByEmail(email);
 

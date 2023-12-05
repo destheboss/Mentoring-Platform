@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BusinessLogicLayer.Interfaces;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Security.Cryptography;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace BusinessLogicLayer.Managers
 {
-    public class HashingManager
+    public class HashingManager : IHashingManager
     {
         public (byte[] hash, byte[] salt) GenerateHashWithSalt(string password)
         {
