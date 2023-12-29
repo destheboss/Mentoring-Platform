@@ -42,12 +42,22 @@ function addSpecialty() {
 }
 
 function updateHiddenInput() {
-    var list = document.getElementById('selectedSpecialtiesList');
-    var allListItems = list.getElementsByTagName('li');
-    var specialties = Array.from(allListItems).map(function (item) {
-        return item.firstChild.textContent;
-    });
-
+    var roleSelect = document.getElementById('roleSelect');
     var hiddenInput = document.getElementById('specialtiesHidden');
-    hiddenInput.value = specialties.join(',');
+
+    if (roleSelect.value === 'Mentor') {
+        var list = document.getElementById('selectedSpecialtiesList');
+        var allListItems = list.getElementsByTagName('li');
+        var specialties = Array.from(allListItems).map(function (item) {
+            return item.firstChild.textContent;
+        });
+
+        hiddenInput.value = specialties.join(',');
+    } else {
+        hiddenInput.value = '';
+    }
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    toggleSpecialtiesDropdown();
+});

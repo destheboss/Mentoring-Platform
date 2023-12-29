@@ -12,6 +12,13 @@ namespace BusinessLogicLayer.Managers
         private readonly IMeetingDataAccess meetingDataAccess;
         private readonly IPersonDataAccess personDataAccess;
 
+        private const double SpecialtyWeight = 0.4;
+        private const double PerformanceWeight = 0.4;
+        private const double AvailabilityWeight = 0.2;
+        private const double MaxRating = 5.0;
+        private const int recentPeriodInDays = 21;
+        private const int minimumMatchCount = 1;
+
         public SuggestionManager(IMeetingDataAccess meetingDataAccess, IPersonDataAccess personDataAccess)
         {
             this.meetingDataAccess = meetingDataAccess;
@@ -25,6 +32,12 @@ namespace BusinessLogicLayer.Managers
             var menteeMeetings = meetingDataAccess.GetAllMeetings(menteeEmail);
             var preferredSpecialties = GetPreferredSpecialties(menteeMeetings);
 
+            if (!preferredSpecialties.Any()) // Check if there are no preferred specialties
+            {
+                // Handle this scenario - e.g., return all mentors or a default set of mentors
+                return personDataAccess.GetMentors();
+            }
+
             // Retrieve all potential mentors and calculate a compatibility score for each
             var potentialMentors = personDataAccess.GetMentors();
 
@@ -34,14 +47,24 @@ namespace BusinessLogicLayer.Managers
                     Mentor = mentor,
                     Score = CalculateCompatibilityScore(mentor, preferredSpecialties, menteeMeetings)
                 })
-                .Where(x => x.Score > 0)
+                .Where(x => x.Score > 0 && DoesMeetMinimumSpecialtyRequirement(x.Mentor, preferredSpecialties))
                 .OrderByDescending(x => x.Score)
                 .Select(x => x.Mentor);
+        }
+
+        private bool DoesMeetMinimumSpecialtyRequirement(Mentor mentor, IEnumerable<Specialty> preferredSpecialties)
+        {
+            return mentor.Specialties.Count(s => preferredSpecialties.Contains(s)) >= minimumMatchCount;
         }
 
         // Analyze the mentee's past meetings to determine preferred specialties
         private IEnumerable<Specialty> GetPreferredSpecialties(IEnumerable<Meeting> menteeMeetings)
         {
+            if (!menteeMeetings.Any()) // Check if there are no meetings
+            {
+                return Enumerable.Empty<Specialty>(); // Return an empty list of specialties
+            }
+
             var specialtyScores = new Dictionary<Specialty, double>();
             var mostRecentMeetingDate = menteeMeetings.Max(m => m.DateTime);
 
@@ -75,11 +98,11 @@ namespace BusinessLogicLayer.Managers
         private double CalculateCompatibilityScore(Mentor mentor, IEnumerable<Specialty> preferredSpecialties, IEnumerable<Meeting> menteeMeetings)
         {
             double specialtyScore = CalculateSpecialtyScore(mentor, preferredSpecialties);
-            double performanceScore = CalculatePerformanceScore(mentor, menteeMeetings);
-            double availabilityScore = CalculateRecentActivityScore(mentor);
+            double performanceScore = menteeMeetings.Any() ? CalculatePerformanceScore(mentor, menteeMeetings) : 0;
+            double availabilityScore = menteeMeetings.Any() ? CalculateRecentActivityScore(mentor) : 0;
 
             // Example weights: 40% for specialty, 40% for performance, 20% for availability
-            return specialtyScore * 0.4 + performanceScore * 0.4 + availabilityScore * 0.2;
+            return specialtyScore * SpecialtyWeight + performanceScore * PerformanceWeight + availabilityScore * AvailabilityWeight;
         }
 
         // Calculate how well the mentor's specialties align with the mentee's preferences
@@ -97,13 +120,12 @@ namespace BusinessLogicLayer.Managers
                 return 0;
 
             double averageRating = mentorMeetings.Average(m => m.Rating);
-            return averageRating / 5.0;
+            return averageRating / MaxRating;
         }
 
         // Calculate a score based on the mentor's recent meeting frequency
         private double CalculateRecentActivityScore(Mentor mentor)
         {
-            const int recentPeriodInDays = 21;
             DateTime threeWeeksAgo = DateTime.Now.AddDays(-recentPeriodInDays);
 
             var recentMeetings = meetingDataAccess.GetPastMeetings(mentor.Email)

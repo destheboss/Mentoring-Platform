@@ -11,7 +11,7 @@ namespace BusinessLogicLayer.Strategies
         public bool IsPasswordStrong(string password)
         {
             bool hasUpper = false, hasLower = false;
-            foreach (char c in password)
+            foreach (char c in password) // O(password.length)
             {
                 if (char.IsUpper(c)) hasUpper = true;
                 if (char.IsLower(c)) hasLower = true;

@@ -69,7 +69,7 @@ namespace DataAccessLayer.Managers
             {
                 using (SqlConnection connection = new SqlConnection(connectionString))
                 {
-                    string query = "SELECT * FROM Announcement";
+                    string query = "SELECT * FROM Announcement ORDER BY CreatedAt DESC";
 
                     using (SqlCommand command = new SqlCommand(query, connection))
                     {
@@ -78,15 +78,17 @@ namespace DataAccessLayer.Managers
                         {
                             while (reader.Read())
                             {
-                                Announcement announcement = new Announcement
-                                {
-                                    Id = Convert.ToInt32(reader["Id"]),
-                                    Title = reader["Title"].ToString(),
-                                    Message = new StringBuilder(reader["Message"].ToString()),
-                                    CreatedBy = reader["CreatedBy"].ToString(),
-                                    CreatedAt = Convert.ToDateTime(reader["CreatedAt"]),
-                                    Type = (AnnouncementType)Enum.Parse(typeof(AnnouncementType), reader["Type"].ToString())
-                                };
+                                int id = Convert.ToInt32(reader["Id"]);
+                                string title = reader["Title"].ToString();
+                                string message = reader["Message"].ToString();
+                                string createdBy = reader["CreatedBy"].ToString();
+                                DateTime createdAt = Convert.ToDateTime(reader["CreatedAt"]);
+                                DateTime? updatedAt = reader["UpdatedAt"] != DBNull.Value
+                                                      ? Convert.ToDateTime(reader["UpdatedAt"])
+                                                      : (DateTime?)null;
+                                AnnouncementType type = (AnnouncementType)Enum.Parse(typeof(AnnouncementType), reader["Type"].ToString());
+
+                                Announcement announcement = new Announcement(id, title, message, createdBy, createdAt, updatedAt, type);
                                 announcements.Add(announcement);
                             }
                         }

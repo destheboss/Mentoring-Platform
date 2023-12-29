@@ -33,19 +33,34 @@ namespace DesktopApp.Forms
         {
             string mentorEmail = tbxMentorEmail.Text;
             Mentor mentor = userManager.GetPersonByEmail(mentorEmail) as Mentor;
+
             string menteeEmail = tbxMenteeEmail.Text;
             Mentee mentee = userManager.GetPersonByEmail(menteeEmail) as Mentee;
-            DateTime date = dtpDate.Value;
 
+            if (mentor == null)
+            {
+                MessageBox.Show("Mentor email not found in the database.");
+                return; // Exit the method if mentor not found
+            }
+
+            if (mentee == null)
+            {
+                MessageBox.Show("Mentee email not found in the database.");
+                return; // Exit the method if mentee not found
+            }
+
+            DateTime date = dtpDate.Value;
             Meeting meeting = new Meeting(date, mentor.Id, mentorEmail, mentee.Id, menteeEmail);
+
             try
             {
                 meetingManager.AddMeeting(meeting);
                 MessageBox.Show("Meeting successfully created.");
+                this.Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                MessageBox.Show("Error creating meeting: " + ex.Message);
             }
         }
     }

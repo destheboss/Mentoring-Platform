@@ -34,10 +34,6 @@ namespace WebApp.Pages
         [BindProperty]
         public Role Role { get; set; }
 
-        [BindProperty]
-        public List<Specialty> Specialties { get; set; }
-
-        [BindProperty]
         public string SpecialtiesString { get; set; }
 
         [BindProperty]
@@ -85,12 +81,18 @@ namespace WebApp.Pages
             try
             {
                 List<Specialty> selectedSpecialties = new List<Specialty>();
-                if (!string.IsNullOrEmpty(SpecialtiesString))
+                if (Role == Role.Mentor)
                 {
+                    if (string.IsNullOrEmpty(SpecialtiesString))
+                    {
+                        ModelState.AddModelError("SpecialtiesString", "Specialties are required for a Mentor.");
+                        return Page();
+                    }
+
                     selectedSpecialties = SpecialtiesString
-                        .Split(',')
-                        .Select(s => (Specialty)Enum.Parse(typeof(Specialty), s))
-                        .ToList();
+                    .Split(',')
+                    .Select(s => (Specialty)Enum.Parse(typeof(Specialty), s))
+                    .ToList();
                 }
 
                 User newUser = UserFactory.CreateUser(FirstName, LastName, Email, Password, Role, selectedSpecialties, filePath);

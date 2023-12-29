@@ -75,5 +75,40 @@ namespace MyApp.Tests
 
             Assert.AreEqual(expectedPerson, result);
         }
+
+        [TestMethod]
+        public void RemovePerson_ShouldRemovePerson_WhenPersonExistsAndCanBeRemoved()
+        {
+            var user = new Mentee("John", "Doe", "john@example.com", "password123", Role.Mentee);
+
+            _personData.Setup(d => d.RemovePerson(It.Is<User>(u => u.Email == user.Email)))
+                       .Verifiable();
+
+            _userManager.RemovePerson(user);
+
+            _personData.Verify(d => d.RemovePerson(It.Is<User>(u => u.Email == user.Email)), Times.Once);
+        }
+
+        [TestMethod]
+        public void RemovePerson_ShouldThrowException_WhenPersonHasDependentMeetings()
+        {
+            var user = new Mentee("John", "Doe", "john@example.com", "password123", Role.Mentee);
+
+            _personData.Setup(d => d.RemovePerson(It.Is<User>(u => u.Email == user.Email)))
+                       .Throws(new InvalidOperationException("Cannot delete person due to foreign key constraint."));
+
+            Assert.ThrowsException<InvalidOperationException>(() => _userManager.RemovePerson(user));
+        }
+
+        [TestMethod]
+        public void RemovePerson_ShouldThrowInvalidOperationException_WhenPersonDoesNotExist()
+        {
+            var user = new Mentee("NonExistent", "User", "nonexistent@example.com", "password123", Role.Mentee);
+
+            _personData.Setup(d => d.RemovePerson(It.Is<User>(u => u.Email == user.Email)))
+                       .Throws(new InvalidOperationException("Person not found in the database."));
+
+            Assert.ThrowsException<InvalidOperationException>(() => _userManager.RemovePerson(user));
+        }
     }
 }
