@@ -1,0 +1,38 @@
+﻿@page
+@model WebApp.Pages.EditMentorProfileModel
+@{
+    ViewData["Title"] = "Edit Mentor Profile";
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/editProfile.css">
+</head>
+<body>
+    <main>
+        <div class="edit-form-container">
+            <form method="post">
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" name="FirstName" value="@Model.Mentor.FirstName" />
+
+                <label for="lastName">Last Name</label>
+                <input type="text" id="lastName" name="LastName" value="@Model.Mentor.LastName" />
+
+                <label for="email">Email</label>
+                <input type="email" id="email" name="Email" value="@Model.Mentor.Email" />
+
+                <label for="password">Password</label>
+                <input type="password" id="password" name="Password" />
+
+                <label for="specialties">Specialties</label>
+                @foreach (var specialty in Enum.GetValues<BusinessLogicLayer.Models.Specialty>())
+                {
+                    <input type="checkbox" name="Specialties" value="@specialty" @(Model.Mentor.Specialties.Contains(specialty) ? "checked" : "") /> @specialty
+
+                    <br />
+                }
+
+                <button type="submit">Save Changes</button>
+            </form>
+        </div>
+    </main>
+</body>

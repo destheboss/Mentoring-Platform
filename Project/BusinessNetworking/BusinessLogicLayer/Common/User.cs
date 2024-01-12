@@ -116,7 +116,7 @@ namespace BusinessLogicLayer.Common
             this.Image = image;
         }
 
-        protected string GetStatus()
+        public string GetStatus()
         {
             return this.isActive ? "Active" : "Suspended";
         }

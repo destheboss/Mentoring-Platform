@@ -57,6 +57,11 @@ namespace BusinessLogicLayer.Models
             this.Rating = rating;
         }
 
+        public Meeting()
+        {
+
+        }
+
         public override string ToString()
         {
             return $"Participants: {MentorEmail}, {MenteeEmail}, Date: {this.DateTime}, Rating: {this.Rating}";

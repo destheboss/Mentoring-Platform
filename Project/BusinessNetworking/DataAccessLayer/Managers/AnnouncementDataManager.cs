@@ -127,5 +127,42 @@ namespace DataAccessLayer.Managers
                 throw new Exception($"Error while updating the announcement: {ex.Message}");
             }
         }
+
+        public Announcement? GetLatestAnnouncement()
+        {
+            Announcement? latestAnnouncement = null;
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    string query = "SELECT TOP 1 * FROM Announcement ORDER BY CreatedAt DESC";
+
+                    connection.Open();
+                    using (SqlCommand command = new SqlCommand(query, connection))
+                    {
+                        using (SqlDataReader reader = command.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                latestAnnouncement = new Announcement(
+                                    (int)reader["Id"],
+                                    reader["Title"].ToString(),
+                                    reader["Message"].ToString(),
+                                    reader["CreatedBy"].ToString(),
+                                    (DateTime)reader["CreatedAt"],
+                                    reader.IsDBNull(reader.GetOrdinal("UpdatedAt")) ? (DateTime?)null : (DateTime)reader["UpdatedAt"],
+                                    (AnnouncementType)Enum.Parse(typeof(AnnouncementType), reader["Type"].ToString())
+                                );
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Error while getting the latest announcement: {ex.Message}");
+            }
+            return latestAnnouncement;
+        }
     }
 }

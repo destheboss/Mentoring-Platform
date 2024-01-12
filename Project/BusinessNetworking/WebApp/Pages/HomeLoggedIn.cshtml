@@ -9,21 +9,6 @@
     <link rel="stylesheet" href="~/css/homeLoggedIn.css">
 </head>
 <body>
-    <header>
-        <nav>
-            <ul class="left-nav">
-                <li><a href="/Events">Events</a></li>
-                <li><a href="/BrowseMentors">Browse Mentors</a></li>
-            </ul>
-            <ul class="right-nav">
-                <li><a href="/Profile"><img src="https://static.vecteezy.com/system/resources/thumbnails/007/033/146/small/profile-icon-login-head-icon-vector.jpg" alt="Profile" /></a></li>
-                <form method="post" asp-page-handler="Logout">
-                    <button type="submit" class="btn btn-link nav-link">Logout</button>
-                </form>
-            </ul>
-        </nav>
-    </header>
-
     <main>
         <h2>Welcome, @Model.LoggedInUser.FirstName @Model.LoggedInUser.LastName!</h2>
         <section class="featured-stories">
@@ -34,9 +19,4 @@
             </div>
         </section>
     </main>
-
-    <footer>
-        <p>&copy; 2023 Business Networking. All rights reserved.</p>
-        <p>About us - Contact us at these socials: [Social Links]</p>
-    </footer>
 </body>

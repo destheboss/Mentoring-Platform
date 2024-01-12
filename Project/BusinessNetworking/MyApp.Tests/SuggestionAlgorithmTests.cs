@@ -1,4 +1,5 @@
-﻿using BusinessLogicLayer.Interfaces;
+﻿using BusinessLogicLayer.Common;
+using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Managers;
 using BusinessLogicLayer.Models;
 using Moq;
@@ -15,6 +16,7 @@ namespace MyApp.Tests
     {
         private Mock<IPersonDataAccess> _personData;
         private Mock<IMeetingDataAccess> _meetingData;
+        private Mock<ISuggestionDataAccess> _suggestionData;
         private SuggestionManager suggestionManager;
 
         [TestInitialize]
@@ -22,7 +24,8 @@ namespace MyApp.Tests
         {
             _personData = new Mock<IPersonDataAccess>();
             _meetingData = new Mock<IMeetingDataAccess>();
-            suggestionManager = new SuggestionManager(_meetingData.Object, _personData.Object);
+            _suggestionData = new Mock<ISuggestionDataAccess>();
+            suggestionManager = new SuggestionManager(_meetingData.Object, _personData.Object, _suggestionData.Object);
 
             _personData.Setup(m => m.GetMentorSpecialties(It.IsAny<int>()))
                        .Returns(new List<Specialty> { Specialty.WebDevelopment, Specialty.DataScience }); // Example specialties
@@ -32,6 +35,8 @@ namespace MyApp.Tests
         public void SuggestMentorsForMentee_ShouldReturnCorrectMentors()
         {
             var menteeEmail = "mentee@example.com";
+            var user = new Mentee("John", "Doe", menteeEmail, "Password123!", Role.Mentee);
+
             var mentors = new List<Mentor>
             {
                  new Mentor(1, "Alex", "Walker", "alex@example.com", Role.Mentor, true, 1, new List<Specialty> { Specialty.WebDevelopment }),
@@ -49,6 +54,8 @@ namespace MyApp.Tests
                 new Meeting(2, DateTime.Now.AddDays(-20), 2, "jane@example.com", 101, menteeEmail, 3),
             };
 
+            _personData.Setup(m => m.GetPersonByEmail(It.Is<string>(email => email == menteeEmail)))
+                .Returns(user);
             _personData.Setup(m => m.GetMentors()).Returns(mentors);
             _meetingData.Setup(m => m.GetAllMeetings(It.IsAny<string>())).Returns(meetings);
 
@@ -62,6 +69,7 @@ namespace MyApp.Tests
         public void SuggestMentorsForMentee_ShouldNotSuggestMentorsWithNoMatchingSpecialties()
         {
             var menteeEmail = "mentee@example.com";
+            var user = new Mentee("John", "Doe", menteeEmail, "Password123!", Role.Mentee);
 
             var mentors = new List<Mentor>
             {
@@ -74,6 +82,8 @@ namespace MyApp.Tests
                 new Meeting(1, DateTime.Now.AddDays(-10), 1, "alberta@example.com", 101, menteeEmail, 5),
             };
 
+            _personData.Setup(m => m.GetPersonByEmail(It.Is<string>(email => email == menteeEmail)))
+                .Returns(user);
             _personData.Setup(m => m.GetMentors()).Returns(mentors);
             _meetingData.Setup(m => m.GetAllMeetings(It.IsAny<string>())).Returns(meetings);
 
@@ -86,6 +96,8 @@ namespace MyApp.Tests
         public void SuggestMentorsForMentee_ShouldHandleMenteeWithNoPriorMeetings()
         {
             var menteeEmail = "newmentee@example.com";
+            var user = new Mentee("John", "Doe", menteeEmail, "Password123!", Role.Mentee);
+
             var mentors = new List<Mentor>
             {
                 new Mentor(1, "Gordon", "Ramsay", "gordon@example.com", Role.Mentor, true, 5, new List<Specialty> { Specialty.Cooking }),
@@ -93,6 +105,8 @@ namespace MyApp.Tests
 
             var meetings = new List<Meeting>(); // Empty list indicating no prior meetings
 
+            _personData.Setup(m => m.GetPersonByEmail(It.Is<string>(email => email == menteeEmail)))
+                .Returns(user);
             _personData.Setup(m => m.GetMentors()).Returns(mentors);
             _meetingData.Setup(m => m.GetAllMeetings(It.IsAny<string>())).Returns(meetings);
 

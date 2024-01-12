@@ -1,0 +1,30 @@
+﻿@page
+@model WebApp.Pages.EditUserProfileModel
+@{
+    ViewData["Title"] = "Edit User Profile";
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/editProfile.css">
+</head>
+<body>
+    <main>
+        <div class="edit-form-container">
+            <form method="post">
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" name="FirstName" value="@Model.User.FirstName" />
+
+                <label for="lastName">Last Name</label>
+                <input type="text" id="lastName" name="LastName" value="@Model.User.LastName" />
+
+                <label for="email">Email</label>
+                <input type="email" id="email" name="Email" value="@Model.User.Email" />
+
+                <label for="password">Password</label>
+                <input type="password" id="password" name="Password" />
+
+                <button type="submit">Save Changes</button>
+            </form>
+        </div>
+    </main>
+</body>

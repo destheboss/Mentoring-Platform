@@ -12,5 +12,6 @@ namespace BusinessLogicLayer.Interfaces
         bool DeleteAnnouncement(int id);
         List<Announcement> GetAllAnnouncements();
         bool UpdateAnnouncement(int id, string newContent);
+        Announcement? GetLatestAnnouncement();
     }
 }

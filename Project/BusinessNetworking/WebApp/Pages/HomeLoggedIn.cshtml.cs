@@ -2,6 +2,7 @@ using BusinessLogicLayer.Common;
 using BusinessLogicLayer.Interfaces;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -18,23 +19,14 @@ namespace WebApp.Pages
         }
         public void OnGet()
         {
-            string userEmail = HttpContext.Session.GetString("UserEmail");
-
-            if (!string.IsNullOrEmpty(userEmail))
+            if (User.Identity.IsAuthenticated)
             {
+                string userEmail = User.Identity.Name;
                 IPerson person = _personDataAccess.GetPersonByEmail(userEmail);
                 if (person != null && person is User user)
                 {
                     LoggedInUser = user;
                 }
-                else
-                {
-                    // Handle user not found scenario
-                }
-            }
-            else
-            {
-                // Redirect to login or handle unauthenticated scenario
             }
         }
 

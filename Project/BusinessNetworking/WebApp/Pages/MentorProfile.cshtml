@@ -1,0 +1,77 @@
+﻿@page
+@model WebApp.Pages.MentorProfileModel
+@{
+    ViewData["Title"] = "Mentor Profile";
+}
+
+<head>
+    <title>Mentor Profile</title>
+    <link rel="stylesheet" href="~/css/mentorProfile.css">
+</head>
+<body>
+    <main>
+        <div class="profile-container">
+            <div class="profile-sidebar">
+                <!-- Mentor Photo -->
+                <div class="profile-image">
+                    <img src="@Model.ProfileOwner.Image" alt="Mentor Photo" />
+                </div>
+
+                <div class="status-container">
+                    <!-- Display the mentor's status -->
+                    <p>Status: @Model.ProfileOwner.GetStatus()</p>
+                </div>
+
+                @if (Model.CurrentUserEmail == Model.ProfileOwner.Email)
+                {
+                    <div class="edit-profile-container">
+                        <a asp-page="/EditMentorProfile" asp-route-email="@@Model.ProfileOwner.Email" class="btn-edit-profile">Edit Profile</a>
+                    </div>
+                }
+
+                <!-- Rating -->
+                <div class="rating-container">
+                    @for (int i = 1; i <= 5; i++)
+                    {
+                        <span class="star">@Html.Raw(i <= Model.ProfileOwner.Rating ? "&#9733;" : "&#9734;")</span>
+                    }
+                </div>
+
+                <!-- Book Now Button, only shown if the current user is not the mentor -->
+                @if (Model.CurrentUserEmail != null && Model.CurrentUserEmail != Model.ProfileOwner.Email)
+                {
+                    <a asp-page="/BookMeeting" asp-route-mentorEmail="@Model.ProfileOwner.Email" class="btn-book-now">Book Now</a>
+                }
+            </div>
+
+            <div class="profile-main">
+                <!-- Mentor Name and Biography -->
+                <div class="profile-header">
+                    <h1>@Model.ProfileOwner.FirstName @Model.ProfileOwner.LastName</h1>
+                    <p class="role">@Model.ProfileOwner.Role.ToString()</p>
+                </div>
+                <div class="profile-bio">
+                    <h2>Biography</h2>
+                    <p>Here is the mentor's biography...</p>
+                </div>
+
+                <!-- Mentor Specialties -->
+                <div class="profile-specialties">
+                    <h2>List of Areas of Expertise</h2>
+                    <ul>
+                        @foreach (var specialty in Model.Specialties)
+                        {
+                            <li>@specialty</li>
+                        }
+                    </ul>
+                </div>
+
+                <!-- Past Feedback -->
+                <div class="profile-feedback">
+                    <h2>Past Feedback</h2>
+                    <p>Feedback content goes here...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>

@@ -1,0 +1,71 @@
+﻿body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+}
+
+.search-container {
+    text-align: center;
+    margin: 20px;
+}
+
+#mentorSearch {
+    width: 60%;
+    padding: 10px;
+    font-size: 1em;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.mentor-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    padding: 0;
+}
+
+.mentor-card {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: calc(33.333% - 40px);
+    margin: 20px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.mentor-photo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 3px solid #eee;
+}
+
+.mentor-info {
+    margin-top: 10px;
+}
+
+.mentor-specialties {
+    font-size: 0.9em;
+    color: #666;
+}
+
+.mentor-rating {
+    font-weight: bold;
+    color: #4caf50;
+}
+
+.btn-view-profile {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    margin-top: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+    .btn-view-profile:hover {
+        background-color: #0056b3;
+    }

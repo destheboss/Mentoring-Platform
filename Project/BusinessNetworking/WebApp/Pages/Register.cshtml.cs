@@ -53,6 +53,14 @@ namespace WebApp.Pages
         {
             if (!ModelState.IsValid)
             {
+                foreach (var modelState in ViewData.ModelState.Values)
+                {
+                    foreach (var error in modelState.Errors)
+                    {
+                        var errorMessage = error.ErrorMessage;
+                        // Log these error messages or set breakpoints to examine them.
+                    }
+                }
                 return Page();
             }
 
@@ -77,12 +85,14 @@ namespace WebApp.Pages
 
                 filePath = "/images/" + uniqueFileName;
             }
-
+            
             try
             {
                 List<Specialty> selectedSpecialties = new List<Specialty>();
                 if (Role == Role.Mentor)
                 {
+                    SpecialtiesString = Request.Form["SpecialtiesString"];
+
                     if (string.IsNullOrEmpty(SpecialtiesString))
                     {
                         ModelState.AddModelError("SpecialtiesString", "Specialties are required for a Mentor.");

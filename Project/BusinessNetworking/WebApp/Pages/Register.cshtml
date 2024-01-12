@@ -10,15 +10,6 @@
     <link rel="stylesheet" href="~/css/register.css">
 </head>
 <body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="/">Home</a></li>
-                <li><a href="/Login">Login</a></li>
-            </ul>
-        </nav>
-    </header>
-
     <div class="register-container">
         <h2>Register</h2>
         <form method="post" enctype="multipart/form-data">
@@ -51,7 +42,7 @@
             </select>
             <button type="button" id="addSpecialtyButton" onclick="addSpecialty()">Add Specialty</button>
             <ul id="selectedSpecialtiesList"></ul>
-            <input type="hidden" id="specialtiesHidden" asp-for="SpecialtiesString" />
+            <input type="hidden" id="specialtiesHidden" name="SpecialtiesString" />
 
             <label for="Image">Profile Image:</label>
             <input type="file" asp-for="Image" accept="image/*" />
@@ -60,10 +51,6 @@
             <button type="submit">Register</button>
         </form>
     </div>
-
-    <footer>
-        <p>&copy; 2023 Business Networking. All rights reserved.</p>
-    </footer>
 
     @section Scripts {
         <script src="~/js/register.js"></script>

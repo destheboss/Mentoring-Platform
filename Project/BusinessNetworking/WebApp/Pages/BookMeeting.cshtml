@@ -1,0 +1,60 @@
+﻿@page
+@model WebApp.Pages.BookMeetingModel
+@{
+    ViewData["Title"] = "Book Meeting";
+
+    @if (ViewData["Message"] != null)
+    {
+        <div class="alert alert-success">
+            @ViewData["Message"]
+        </div>
+    }
+}
+
+<head>
+    <title>Book Meeting</title>
+    <link rel="stylesheet" href="~/css/bookMeeting.css">
+</head>
+
+<body>
+    <main>
+        <div class="book-meeting-container">
+            <h1>Book a Meeting with @Model.Meeting.MentorEmail</h1>
+
+            <form method="post" asp-page-handler="BookMeeting">
+                <div class="form-block">
+                    <label for="mentorEmail">Mentor's Email</label>
+                    <input type="text" id="mentorEmail" name="mentorEmail" value="@Model.Meeting.MentorEmail" readonly />
+                </div>
+
+                <div class="form-block">
+                    <label for="menteeEmail">Mentee's Email</label>
+                    <input type="text" id="menteeEmail" name="menteeEmail" value="@Model.Meeting.MenteeEmail" readonly />
+                </div>
+
+                <div class="form-block">
+                    <label for="meetingDate">Select a Date</label>
+                    <input type="date" id="meetingDate" name="meetingDate" required />
+                </div>
+
+                <div class="form-block">
+                    <label for="meetingTime">Select a Time</label>
+                    <select id="meetingTime" name="meetingTime" required>
+                        <option value="9:00 AM">9:00 AM</option>
+                        <option value="10:00 AM">10:00 AM</option>
+                        <option value="11:00 AM">11:00 AM</option>
+                        <option value="12:00 PM">12:00 PM</option>
+                        <option value="1:00 PM">1:00 PM</option>
+                        <option value="2:00 PM">2:00 PM</option>
+                        <option value="3:00 PM">3:00 PM</option>
+                        <option value="4:00 PM">4:00 PM</option>
+                        <option value="5:00 PM">5:00 PM</option>
+                        <option value="6:00 PM">6:00 PM</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-book-now">Book Now</button>
+            </form>
+        </div>
+    </main>
+</body>

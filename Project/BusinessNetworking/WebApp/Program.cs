@@ -10,7 +10,12 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/Login";
         options.AccessDeniedPath = "/AccessDenied";
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(60); // Cookie expiration time
+        options.SlidingExpiration = true; // Refresh the expiration time if the user is active
+        options.Cookie.IsEssential = true;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Strict;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Send the cookie only over HTTPS
     });
 
 builder.Services.AddSession(options =>
@@ -20,17 +25,27 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
-// Add services to the container.
-builder.Services.AddRazorPages();
+//Add services to the container.
+//builder.Services.AddRazorPages();
+builder.Services.AddRazorPages(options =>
+{
+    options.Conventions.AuthorizeFolder("/");
+    options.Conventions.AllowAnonymousToPage("/Login");
+    options.Conventions.AllowAnonymousToPage("/Home");
+    options.Conventions.AllowAnonymousToPage("/Events");
+    options.Conventions.AllowAnonymousToPage("/Register");
+});
 
-// Register UserManager service.
-// Register IPersonDataAccess and its implementation.
+// Register services.
 builder.Services.AddScoped<IAuthenticationDataAccess, AuthenticationDataManager>();
+builder.Services.AddScoped<IAnnouncementDataAccess, AnnouncementDataManager>();
 builder.Services.AddScoped<IPersonDataAccess, PersonDataManager>();
 builder.Services.AddScoped<IMeetingDataAccess, MeetingDataManager>();
 builder.Services.AddScoped<IHashingManager, HashingManager>();
 builder.Services.AddScoped<AuthenticationManager>();
 builder.Services.AddScoped<UserManager>();
+builder.Services.AddScoped<ISuggestionDataAccess, SuggestionDataManager>();
+builder.Services.AddScoped<ISuggestionManager, SuggestionManager>();
 
 var app = builder.Build();
 
@@ -57,6 +72,6 @@ app.MapGet("/", async (HttpContext context) =>
     context.Response.Redirect("/Home");
 });
 
-app.MapRazorPages();
+app.MapRazorPages().RequireAuthorization();
 
 app.Run();

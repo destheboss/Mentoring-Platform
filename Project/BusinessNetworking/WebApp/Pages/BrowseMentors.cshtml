@@ -1,0 +1,36 @@
+﻿@page
+@model WebApp.Pages.BrowseMentorsModel
+@{
+    ViewData["Title"] = "Browse Mentors";
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/browseMentors.css">
+</head>
+<body>
+    <main>
+        <div class="search-container">
+            <input type="text" id="mentorSearch" placeholder="Search mentors by specialty..." onkeyup="filterMentors()" />
+            <!-- Button to get suggested mentors -->
+            <button onclick="location.href='@Url.Page("/BrowseMentors", new { suggest = true })'">Suggest Mentors</button>
+        </div>
+        <div id="mentorList" class="mentor-list">
+            @foreach (var mentor in Model.Mentors)
+            {
+                <div class="mentor-card" data-specialties="@string.Join(",", mentor.Specialties.Select(s => s.ToString()))">
+                    <img src="@mentor.Image" alt="Mentor Photo" class="mentor-photo" />
+                    <div class="mentor-info">
+                        <h2>@mentor.FirstName @mentor.LastName</h2>
+                        <p class="mentor-specialties">@string.Join(", ", mentor.Specialties)</p>
+                        <p class="mentor-rating">Rating: @mentor.Rating.ToString("F2")</p>
+                        <button class="btn-view-profile" onclick="location.href='@Url.Page("/MentorProfile", new { email = mentor.Email })'">View Profile</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </main>
+
+    @section Scripts {
+        <script src="~/js/browseMentors.js"></script>
+    }
+</body>

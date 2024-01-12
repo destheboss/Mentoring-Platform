@@ -35,5 +35,10 @@ namespace BusinessLogicLayer.Managers
         {
             return data.UpdateAnnouncement(id, newContent);
         }
+
+        public Announcement? GetLatestAnnouncement()
+        {
+            return data.GetLatestAnnouncement();
+        }
     }
 }

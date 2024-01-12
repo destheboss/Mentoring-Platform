@@ -1,5 +1,5 @@
 ﻿@page
-@model WebApp.Pages.IndexModel
+@model WebApp.Pages.HomeModel
 @{
     ViewData["Title"] = "Home";
 }
@@ -9,17 +9,6 @@
     <link rel="stylesheet" href="~/css/home.css">
 </head>
 <body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="/Register">Register</a></li>
-                <li><a href="/Login">Login</a></li>
-                <li><a href="/Events">Events</a></li>
-                <li><a href="/BrowseMentors">Browse Mentors</a></li>
-            </ul>
-        </nav>
-    </header>
-
     <main>
         <section class="featured-stories">
             <h2>Featured Mentors</h2>
@@ -29,9 +18,4 @@
             </div>
         </section>
     </main>
-
-    <footer>
-        <p>&copy; 2023 Business Networking. All rights reserved.</p>
-        <p>About us - Contact us at these socials: [Social Links]</p>
-    </footer>
 </body>

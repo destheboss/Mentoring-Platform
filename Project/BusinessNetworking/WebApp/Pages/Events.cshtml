@@ -1,0 +1,29 @@
+﻿@page
+@model WebApp.Pages.EventsModel
+@{
+    ViewData["Title"] = "Latest Event";
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/events.css">
+</head>
+<body>
+    <main>
+        <div class="announcement-block">
+            @if (Model.LatestAnnouncement != null)
+            {
+                <div class="announcement-header">
+                    <h2>@Model.LatestAnnouncement.Title</h2>
+                    <p class="announcement-date">@Model.LatestAnnouncement.CreatedAt.ToString("MMM dd, yyyy") by @Model.LatestAnnouncement.CreatedBy</p>
+                </div>
+                <div class="announcement-content">
+                    <p>@Model.LatestAnnouncement.Message.ToString()</p>
+                </div>
+            }
+            else
+            {
+                <p>No announcements available.</p>
+            }
+        </div>
+    </main>
+</body>

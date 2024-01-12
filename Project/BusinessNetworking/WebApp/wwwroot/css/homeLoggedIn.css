@@ -3,19 +3,19 @@
     margin: 0;
     padding: 0;
 }
-header {
+/*header {
     background-color: #333;
     color: white;
     padding: 1rem;
-}
+}*/
 
-nav {
+/*nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
+}*/
 
-    nav ul {
+    /*nav ul {
         list-style: none;
         display: flex;
         align-items: center;
@@ -37,14 +37,14 @@ nav {
             }
 
                 nav ul li a img {
-                    height: 30px; /* Adjust as needed */
-                }
+                    height: 30px;*/ /* Adjust as needed */
+                /*}*/
 
 main {
     padding: 20px;
 }
 
-footer {
+/*footer {
     background-color: #333;
     color: white;
     text-align: center;
@@ -52,4 +52,4 @@ footer {
     position: fixed;
     bottom: 0;
     width: 100%;
-}
+}*/

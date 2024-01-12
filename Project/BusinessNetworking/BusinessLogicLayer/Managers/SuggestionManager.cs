@@ -1,4 +1,5 @@
-﻿using BusinessLogicLayer.Interfaces;
+﻿using BusinessLogicLayer.Common;
+using BusinessLogicLayer.Interfaces;
 using BusinessLogicLayer.Models;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ namespace BusinessLogicLayer.Managers
     {
         private readonly IMeetingDataAccess meetingDataAccess;
         private readonly IPersonDataAccess personDataAccess;
+        private readonly ISuggestionDataAccess suggestionDataAccess;
 
         private const double SpecialtyWeight = 0.4;
         private const double PerformanceWeight = 0.4;
@@ -18,38 +20,78 @@ namespace BusinessLogicLayer.Managers
         private const double MaxRating = 5.0;
         private const int recentPeriodInDays = 21;
         private const int minimumMatchCount = 1;
+        private const int maxSuggestions = 5;
 
-        public SuggestionManager(IMeetingDataAccess meetingDataAccess, IPersonDataAccess personDataAccess)
+        private static readonly Random random = new Random();
+
+        public SuggestionManager(IMeetingDataAccess meetingDataAccess, IPersonDataAccess personDataAccess, ISuggestionDataAccess suggestionDataAccess)
         {
             this.meetingDataAccess = meetingDataAccess;
             this.personDataAccess = personDataAccess;
+            this.suggestionDataAccess = suggestionDataAccess;
         }
 
         // Main method for suggesting mentors to a mentee based on various criteria
         public IEnumerable<Mentor> SuggestMentorsForMentee(string menteeEmail)
         {
+            var mentee = personDataAccess.GetPersonByEmail(menteeEmail) as User;
+            if (mentee == null)
+            {
+                throw new ArgumentException("Mentee not found.");
+            }
+
+            // Get the history of previously suggested mentors
+            var previousSuggestions = new HashSet<int>(suggestionDataAccess.GetSuggestionHistory(mentee.Id));
+
             // Retrieve all meetings for the mentee and calculate their preferred specialties
             var menteeMeetings = meetingDataAccess.GetAllMeetings(menteeEmail);
             var preferredSpecialties = GetPreferredSpecialties(menteeMeetings);
 
+            IEnumerable<Mentor> suggestedMentors;
+
             if (!preferredSpecialties.Any()) // Check if there are no preferred specialties
             {
-                // Handle this scenario - e.g., return all mentors or a default set of mentors
-                return personDataAccess.GetMentors();
+                suggestedMentors = GetTopRatedOrRandomMentors(maxSuggestions, previousSuggestions);
+            }
+            else
+            {
+                suggestedMentors = personDataAccess.GetMentors()
+                    .Where(mentor => !previousSuggestions.Contains(mentor.Id)) // Exclude previously suggested mentors
+                    .Select(mentor => new
+                    {
+                        Mentor = mentor,
+                        Score = CalculateCompatibilityScore(mentor, preferredSpecialties, menteeMeetings)
+                    })
+                    .Where(x => x.Score > 0 && DoesMeetMinimumSpecialtyRequirement(x.Mentor, preferredSpecialties))
+                    .OrderByDescending(x => x.Score)
+                    .Take(maxSuggestions)
+                    .Select(x => x.Mentor);
             }
 
-            // Retrieve all potential mentors and calculate a compatibility score for each
-            var potentialMentors = personDataAccess.GetMentors();
+            // Update suggestion history
+            suggestionDataAccess.ClearPreviousSuggestions(mentee.Id);
+            suggestionDataAccess.AddSuggestions(mentee.Id, suggestedMentors.Select(m => m.Id));
 
-            return potentialMentors
-                .Select(mentor => new
-                {
-                    Mentor = mentor,
-                    Score = CalculateCompatibilityScore(mentor, preferredSpecialties, menteeMeetings)
-                })
-                .Where(x => x.Score > 0 && DoesMeetMinimumSpecialtyRequirement(x.Mentor, preferredSpecialties))
-                .OrderByDescending(x => x.Score)
-                .Select(x => x.Mentor);
+            return suggestedMentors;
+        }
+
+        private IEnumerable<Mentor> GetTopRatedOrRandomMentors(int maxSuggestions, HashSet<int> excludeMentors)
+        {
+            var mentors = personDataAccess.GetMentors()
+                                          .Where(mentor => !excludeMentors.Contains(mentor.Id))
+                                          .ToList();
+
+            if (mentors.Count <= maxSuggestions)
+            {
+                return mentors;
+            }
+
+            // Random selection from top-rated mentors, excluding previous suggestions
+            var random = new Random();
+            var randomMentors = mentors.OrderBy(x => random.Next())
+                                       .Take(maxSuggestions);
+
+            return randomMentors;
         }
 
         private bool DoesMeetMinimumSpecialtyRequirement(Mentor mentor, IEnumerable<Specialty> preferredSpecialties)

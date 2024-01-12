@@ -1,32 +1,48 @@
 ﻿@page
 @model WebApp.Pages.ProfileModel
 @{
-    ViewData["Title"] = "Profile";
+    ViewData["Title"] = "User Profile";
 }
 
 <head>
-    <title>Profile</title>
+    <title>User Profile</title>
     <link rel="stylesheet" href="~/css/profile.css">
 </head>
 <body>
-    <header>
-        <!-- Include your header navigation here -->
-    </header>
-
     <main>
         <div class="profile-container">
-            <div class="profile-image">
-                <img src="@Model.User.Image" alt="Profile Picture" />
+            <div class="profile-sidebar">
+                <!-- User Photo -->
+                <div class="profile-image">
+                    <img src="@Model.ProfileUser.Image" alt="User Photo" />
+                </div>
+
+                <!-- User Status -->
+                <div class="status-container">
+                    <p>Status: @Model.ProfileUser.GetStatus()</p>
+                </div>
+
+                @if (Model.CurrentUserEmail == Model.ProfileUser.Email)
+                {
+                    <div class="edit-profile-container">
+                        <a asp-page="/EditUserProfile" asp-route-email="@Model.ProfileUser.Email" class="btn-edit-profile">Edit Profile</a>
+                    </div>
+                }
             </div>
-            <div class="profile-info">
-                <h2>@Model.User.FirstName @Model.User.LastName</h2>
-                <p>@Model.User.Role</p>
-                <!-- Add more user details here if needed -->
+
+            <div class="profile-main">
+                <!-- User Name -->
+                <div class="profile-header">
+                    <h1>@Model.ProfileUser.FirstName @Model.ProfileUser.LastName</h1>
+                    <p class="role">@Model.ProfileUser.Role.ToString()</p>
+                </div>
+
+                <!-- User Bio or Additional Info -->
+                <div class="profile-info">
+                    <h2>About</h2>
+                    <p>Additional information about the user...</p>
+                </div>
             </div>
         </div>
     </main>
-
-    <footer>
-        <!-- Include your standard footer here -->
-    </footer>
 </body>

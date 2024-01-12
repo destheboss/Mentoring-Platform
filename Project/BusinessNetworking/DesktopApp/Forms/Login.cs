@@ -30,6 +30,8 @@ namespace DesktopApp.Forms
             //Admin admin = new Admin("Desislav", "Hristov", "admin@gmail.com", "123", Role.Admin);
             //userManager.AddPerson(admin);
 
+            //GenerateDummyMentors();
+
             InitializeComponent();
         }
 
@@ -56,6 +58,49 @@ namespace DesktopApp.Forms
             {
                 MessageBox.Show("Wrong email or password!");
             }
+        }
+
+        public void GenerateDummyMentors()
+        {
+            int numberOfMentors = 20;
+            var random = new Random();
+            for (int i = 1; i < numberOfMentors; i++)
+            {
+                var firstName = $"Mentor{i}";
+                var lastName = $"LastName{i}";
+                var email = $"mentor{i}@example.com";
+                var password = "Password123";
+                var role = Role.Mentor;
+                var specialties = GetRandomSpecialties();
+                var rating = (float)(random.NextDouble() * 5.0);
+                var mentor = new Mentor(firstName, lastName, email, password, role, specialties);
+
+                mentor.Rating = rating;
+                userManager.AddPerson(mentor);
+            }
+        }
+
+        private List<Specialty> GetRandomSpecialties()
+        {
+            var random = new Random();
+            var selectedSpecialties = new List<Specialty>();
+
+            var values = Enum.GetValues(typeof(Specialty));
+            int numberOfSpecialties = random.Next(1, 3); // Either 1 or 2 specialties
+
+            for (int i = 0; i < numberOfSpecialties; i++)
+            {
+                Specialty randomSpecialty;
+                do
+                {
+                    randomSpecialty = (Specialty)values.GetValue(random.Next(values.Length));
+                }
+                while (selectedSpecialties.Contains(randomSpecialty)); // Ensure no duplicates
+
+                selectedSpecialties.Add(randomSpecialty);
+            }
+
+            return selectedSpecialties;
         }
     }
 }
